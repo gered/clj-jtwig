@@ -7,9 +7,17 @@
            (com.lyncode.jtwig.functions JtwigFunction)
            (java.io File FileNotFoundException)))
 
+(defn- create-function-repository []
+  (new DefaultFunctionRepository (make-array JtwigFunction 0)))
+
 ; we'll be reusing the same function repository object for all contexts created when rendering templates.
 ; any custom functions added will be added to this instance
-(defonce functions (atom (new DefaultFunctionRepository (make-array JtwigFunction 0))))
+(defonce functions (atom (create-function-repository)))
+
+(defn reset-functions!
+  "removes any added custom template function handlers"
+  []
+  (reset! functions (create-function-repository)))
 
 (defn- twig-fn-exists? [name]
   (try
