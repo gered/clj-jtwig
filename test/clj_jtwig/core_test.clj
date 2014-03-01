@@ -1,4 +1,5 @@
 (ns clj-jtwig.core-test
+  (:import (java.io FileNotFoundException))
   (:require [clojure.test :refer :all]
             [clj-jtwig.core :refer :all]))
 
@@ -79,3 +80,36 @@
                            :v [10 100 1000]}})
            "abc, 1337, 10 100 1000 ")
         "passing a map with primitives / nested maps / sequences")))
+
+(deftest file-templates
+  (testing "Evaluating templates from files"
+    (let [test-filename    "test/templates/file-template-test.twig"
+          invalid-filename "test/templates/nonexistant.twig"]
+      (is (= (render-file test-filename
+                          {:name "Bob"})
+             "Hello Bob from a file!")
+          "passing a model-map")
+      (is (thrown?
+            FileNotFoundException
+            (render-file invalid-filename
+                         {:name "Bob"}))
+          "trying to render a file that doesn't exist")
+      (is (= (render-file test-filename
+                          nil)
+             "Hello null from a file!")
+          "not passing a model-map")
+      (is (= (render-file test-filename
+                          {"name" "Bob"})
+             "Hello Bob from a file!")
+          "passing a model-map where the keys are strings already")
+      (is (= (render-file test-filename
+                     {"name" "Bob"}
+                     {:skip-model-map-stringify? true})
+             "Hello Bob from a file!")
+          "passing a model-map where the keys are strings already and we want to skip auto stringifying bbb")
+      (is (thrown?
+            ClassCastException
+            (render-file test-filename
+                         {:name "Bob"}
+                         {:skip-model-map-stringify? true}))
+          "passing a model-map where the keys are keywords and try skipping auto stringifying the keys"))))
