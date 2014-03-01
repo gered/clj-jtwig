@@ -2,7 +2,13 @@
   (:require [clojure.walk :refer [stringify-keys]]
             [clojure.java.io :as io])
   (:import (com.lyncode.jtwig JtwigTemplate JtwigContext)
+           (com.lyncode.jtwig.functions.repository DefaultFunctionRepository)
+           (com.lyncode.jtwig.functions JtwigFunction)
            (java.io File FileNotFoundException)))
+
+; we'll be reusing the same function repository object for all contexts created when rendering templates.
+; any custom functions added will be added to this instance
+(defonce functions (atom (new DefaultFunctionRepository (make-array JtwigFunction 0))))
 
 (defn- get-resource-path [filename]
   (-> (Thread/currentThread)
