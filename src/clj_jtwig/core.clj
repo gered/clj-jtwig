@@ -1,7 +1,7 @@
 (ns clj-jtwig.core
   (:require [clojure.walk :refer [stringify-keys]]
             [clojure.java.io :as io])
-  (:import (com.lyncode.jtwig JtwigTemplate JtwigContext)
+  (:import (com.lyncode.jtwig JtwigTemplate JtwigContext JtwigModelMap)
            (com.lyncode.jtwig.functions.exceptions FunctionNotFoundException)
            (com.lyncode.jtwig.functions.repository DefaultFunctionRepository)
            (com.lyncode.jtwig.functions JtwigFunction)
@@ -34,9 +34,12 @@
       (.getContextClassLoader)
       (.getResource filename)))
 
+(defn- make-context []
+  (new JtwigContext (new JtwigModelMap) @functions))
+
 (defn- render-template
   [template model-map & [{:keys [skip-model-map-stringify?] :as options}]]
-  (let [context (new JtwigContext)]
+  (let [context (make-context)]
     (doseq [[k v] (if-not skip-model-map-stringify?
                     (stringify-keys model-map)
                     model-map)]
