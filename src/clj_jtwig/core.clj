@@ -5,7 +5,7 @@
 (defn render
   "renders a template contained in the provided string, using the values in model-map
    as the model for the template."
-  [s model-map & [{:keys [skip-model-map-stringify?] :as options}]]
+  [s model-map & {:keys [skip-model-map-stringify?] :as options}]
   (let [template (new JtwigTemplate s)
         context  (new JtwigContext)]
     (doseq [[k v] (if-not skip-model-map-stringify?
