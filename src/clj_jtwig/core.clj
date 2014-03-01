@@ -2,7 +2,7 @@
   (:require [clojure.walk :refer [stringify-keys]]
             [clojure.java.io :as io])
   (:import (com.lyncode.jtwig JtwigTemplate JtwigContext)
-           (java.io File)))
+           (java.io File FileNotFoundException)))
 
 (defn- get-resource-path [filename]
   (-> (Thread/currentThread)
@@ -30,6 +30,8 @@
   [filename model-map & [options]]
   (let [file     (new File filename)
         template (new JtwigTemplate file)]
+    (if-not (.exists file)
+      (throw (new FileNotFoundException (str "Template file \"" filename "\" not found."))))
     (render-template template model-map options)))
 
 (defn render-resource
