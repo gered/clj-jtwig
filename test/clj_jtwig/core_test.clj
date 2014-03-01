@@ -25,14 +25,14 @@
         "passing a model-map where the keys are strings already")
     (is (= (render "Hello {{ name }}!"
                    {"name" "Bob"}
-                   :skip-model-map-stringify? true)
+                   {:skip-model-map-stringify? true})
            "Hello Bob!")
         "passing a model-map where the keys are strings already and we want to skip auto stringifying bbb")
     (is (thrown?
           ClassCastException
           (render "Hello {{ name }}!"
                   {:name "Bob"}
-                  :skip-model-map-stringify? true))
+                  {:skip-model-map-stringify? true}))
         "passing a model-map where the keys are keywords and try skipping auto stringifying the keys")))
 
 (deftest passing-model-map-data
