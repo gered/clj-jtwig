@@ -19,7 +19,7 @@
   []
   (reset! functions (create-function-repository)))
 
-(defn- twig-fn-exists? [name]
+(defn function-exists? [name]
   (try
     (.retrieve @functions name)
     true
@@ -32,7 +32,7 @@
    to the template."
   [fn-name args & body]
   `(do
-     (if (twig-fn-exists? ~fn-name)
+     (if (function-exists? ~fn-name)
        (throw (new Exception (str "JTwig template function \"" ~fn-name "\" already defined.")))
        (let [func#    (fn ~args ~@body)
              handler# (reify JtwigFunction
