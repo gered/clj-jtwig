@@ -18,6 +18,17 @@
     (catch FunctionNotFoundException ex
       false)))
 
+(defmacro deftwigfn [fn-name args & body]
+  `(do
+     (if (twig-fn-exists? ~fn-name)
+       (throw (new Exception (str "JTwig template function \"" ~fn-name "\" already defined.")))
+       (let [func#    (fn ~args ~@body)
+             handler# (reify JtwigFunction
+                        (execute [_ arguments#]
+                          #_(func# (vec (aclone arguments#)))
+                          (apply func# (vec (aclone arguments#)))))]
+         (.add @functions handler# ~fn-name (make-array String 0))))))
+
 (defn- get-resource-path [filename]
   (-> (Thread/currentThread)
       (.getContextClassLoader)
