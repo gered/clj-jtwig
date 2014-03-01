@@ -18,14 +18,17 @@
     (catch FunctionNotFoundException ex
       false)))
 
-(defmacro deftwigfn [fn-name args & body]
+(defmacro deftwigfn
+  "Adds a new template function. Templates can call it by calling a function using the supplied
+   fn-name and passing the listed arguments. The value of the last form in the function is returned
+   to the template."
+  [fn-name args & body]
   `(do
      (if (twig-fn-exists? ~fn-name)
        (throw (new Exception (str "JTwig template function \"" ~fn-name "\" already defined.")))
        (let [func#    (fn ~args ~@body)
              handler# (reify JtwigFunction
                         (execute [_ arguments#]
-                          #_(func# (vec (aclone arguments#)))
                           (apply func# (vec (aclone arguments#)))))]
          (.add @functions handler# ~fn-name (make-array String 0))))))
 
