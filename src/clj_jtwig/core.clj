@@ -37,17 +37,17 @@
       (.getContextClassLoader)
       (.getResource filename)))
 
-(defn- make-context []
-  (new JtwigContext (new JtwigModelMap) @functions))
-
-(defn- render-template
-  [template model-map & [{:keys [skip-model-map-stringify?] :as options}]]
-  (let [context (make-context)]
+(defn- make-context [model-map {:keys [skip-model-map-stringify?] :as options}]
+  (let [context (new JtwigContext (new JtwigModelMap) @functions)]
     (doseq [[k v] (if-not skip-model-map-stringify?
                     (stringify-keys model-map)
                     model-map)]
       (.set context k v))
-    (.output template context)))
+    context))
+
+(defn- render-template
+  [template model-map & [options]]
+  (.output template (make-context model-map options)))
 
 (defn render
   "renders a template contained in the provided string, using the values in model-map
