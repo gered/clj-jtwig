@@ -10,8 +10,8 @@
            (java.io File FileNotFoundException ByteArrayOutputStream)))
 
 ; global options
-(defonce options (atom {:cache-compiled-templates     true
-                        :skip-file-modification-check false}))
+(defonce options (atom {:cache-compiled-templates true
+                        :skip-file-status-checks  false}))
 
 (declare flush-template-cache!)
 
@@ -84,7 +84,7 @@
         (err-if-no-file! file)
         (cache-and-return!))
 
-      (:skip-file-modification-check @options)
+      (:skip-file-status-checks @options)
       (:template cached)
 
       :else
