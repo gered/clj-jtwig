@@ -1,4 +1,5 @@
-(ns clj-jtwig.convert)
+(ns clj-jtwig.convert
+  "functions for converting data types both ways between clojure and java")
 
 (defprotocol JavaToClojure
   (to-clojure [x]))
