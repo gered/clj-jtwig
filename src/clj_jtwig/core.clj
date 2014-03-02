@@ -60,6 +60,12 @@
       true
       (> file-last-modified other-timestamp))))
 
+; this function really only exists so i can easily change the exception type / message in the future
+; since this file-exists check is needed in a few places
+(defn- err-if-no-file! [^File file]
+  (if-not (.exists file)
+    (throw (new FileNotFoundException (str "Template file \"" file "\" not found.")))))
+
 (defn- cache-compiled-template! [^File file create-fn]
   (let [filepath          (.getPath file)
         cache-and-return! (fn []
@@ -72,19 +78,29 @@
                                  :template      new-compiled-template})
                               new-compiled-template))
         cached            (get @compiled-templates filepath)]
-    (if (and cached
-             (or (:skip-file-modification-check @options)
-                 (not (newer? file (:last-modified cached)))))
+    (cond
+      (not cached)
+      (do
+        (err-if-no-file! file)
+        (cache-and-return!))
+
+      (:skip-file-modification-check @options)
       (:template cached)
-      (cache-and-return!))))
+
+      :else
+      (do
+        (err-if-no-file! file)
+        (if (newer? file (:last-modified cached))
+          (cache-and-return!)
+          (:template cached))))))
 
 (defn- compile-template! [^File file]
-  (if-not (.exists file)
-    (throw (new FileNotFoundException (str "Template file \"" file "\" not found.")))
-    (let [compile-template-fn (fn [file]
-                                (compile-template-file file))]
-      (if (:cache-compiled-templates @options)
-        (cache-compiled-template! file compile-template-fn)
+  (let [compile-template-fn (fn [file]
+                              (compile-template-file file))]
+    (if (:cache-compiled-templates @options)
+      (cache-compiled-template! file compile-template-fn)
+      (do
+        (err-if-no-file! file)
         (compile-template-fn file)))))
 
 (defn flush-template-cache!
