@@ -45,11 +45,6 @@
   (to-clojure [_]
     nil))
 
-(defn java->clojure
-  "converts a java value to an equivalent value using one of the clojure data types"
-  [x]
-  (to-clojure x))
-
 (defprotocol ClojureToJava
   (to-java [x]))
 
@@ -75,6 +70,11 @@
   nil
   (to-java [x]
     nil))
+
+(defn java->clojure
+  "converts a java value to an equivalent value using one of the clojure data types"
+  [x]
+  (to-clojure x))
 
 (defn clojure->java
   "converts a clojure value to an equivalent value using a java object"
