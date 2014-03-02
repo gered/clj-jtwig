@@ -45,6 +45,23 @@
       true
       (> file-last-modified other-timestamp))))
 
+(defn- get-cached-compiled-template [^File file create-fn]
+  (let [filepath          (.getPath file)
+        cache-and-return! (fn []
+                            (let [new-compiled-template (create-fn file)]
+                              (swap!
+                                compiled-templates
+                                assoc
+                                filepath
+                                {:last-modified (get-file-last-modified file)
+                                 :template      new-compiled-template})
+                              new-compiled-template))
+        cached            (get @compiled-templates filepath)]
+    (if (and cached
+             (not (newer? file (:last-modified cached))))
+      (:template cached)
+      (cache-and-return!))))
+
 (defn- get-compiled-template [^File file]
   (if-not (.exists file)
     (throw (new FileNotFoundException (str "Template file \"" file "\" not found.")))
