@@ -1,4 +1,5 @@
 (ns clj-jtwig.core
+  "wrapper functions for working with JTwig from clojure"
   (:require [clojure.walk :refer [stringify-keys]]
             [clj-jtwig.convert :refer [java->clojure clojure->java]])
   (:import (com.lyncode.jtwig JtwigTemplate JtwigContext JtwigModelMap)
