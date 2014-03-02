@@ -7,7 +7,13 @@
 (extend-protocol JavaToClojure
   java.util.Collection
   (to-clojure [x]
-    (map to-clojure x))
+    ; REVIEW: using doall to force complete evaluation because map will otherwise return a LazySeq based on a java
+    ;         collection. want to avoid any potential scenarios where the clojure code using this converted value
+    ;         doesn't have time to fully evaluate the sequence before any other java code modifies the underlying
+    ;         collection object ... or am i just being paranoid? :)
+    (->> x
+         (map to-clojure)
+         (doall)))
 
   java.util.Map
   (to-clojure [x]
