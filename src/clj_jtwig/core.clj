@@ -24,6 +24,17 @@
        (new JtwigTemplate)
        (.compile)))
 
+(defn- inside-jar? [^File file]
+  (-> file
+      (.getPath)
+      ; the path of a file inside a jar looks something like "jar:file:/path/to/file.jar!/path/to/file"
+      (.contains "jar!")))
+
+(defn- get-file-last-modified [^File file]
+  (if (inside-jar? file)
+    0
+    (.lastModified file)))
+
 (defn- get-compiled-template [^File file]
   (if-not (.exists file)
     (throw (new FileNotFoundException (str "Template file \"" file "\" not found.")))
