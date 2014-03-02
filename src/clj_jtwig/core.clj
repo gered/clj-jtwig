@@ -13,12 +13,20 @@
 ; be rendered by calling it's 'render' method
 (defonce compiled-templates (atom {}))
 
+(defn- compile-template-string [^String contents]
+  (->> contents
+       (new JtwigTemplate)
+       (.compile)))
+
+(defn- compile-template-file [^File file]
+  (->> file
+       (new JtwigTemplate)
+       (.compile)))
+
 (defn- get-compiled-template [file]
   (if-not (.exists file)
     (throw (new FileNotFoundException (str "Template file \"" file "\" not found.")))
-    (->> file
-         (new JtwigTemplate)
-         (.compile))))
+    (compile-template-file file)))
 
 (defn- create-function-repository []
   (new DefaultFunctionRepository (make-array JtwigFunction 0)))
