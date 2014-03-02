@@ -70,6 +70,12 @@
       (fn [file]
         (compile-template-file file)))))
 
+(defn flush-template-cache!
+  "removes any cached compiled templates, forcing all future template rendering to first re-compile before
+   re-adding to the cache."
+  []
+  (reset! compiled-templates {}))
+
 (defn- create-function-repository []
   (new DefaultFunctionRepository (make-array JtwigFunction 0)))
 
