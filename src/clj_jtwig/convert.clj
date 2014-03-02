@@ -15,9 +15,7 @@
          (.entrySet)
          (reduce
            (fn [m [k v]]
-             ; TODO: perhaps we should be doing (keyword k) instead? i don't like that it technically is not an
-             ;       exact conversion if we do it that way though, even if it is more idiomatic for clojure ...
-             (assoc m k (to-clojure v)))
+             (assoc m (to-clojure k) (to-clojure v)))
            {})))
 
   java.lang.Number
@@ -33,6 +31,10 @@
     x)
 
   java.lang.String
+  (to-clojure [x]
+    x)
+
+  clojure.lang.Keyword
   (to-clojure [x]
     x)
 
