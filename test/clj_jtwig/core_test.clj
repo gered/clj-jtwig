@@ -1,5 +1,6 @@
 (ns clj-jtwig.core-test
-  (:import (java.io FileNotFoundException))
+  (:import (java.io FileNotFoundException)
+           (clojure.lang ArityException))
   (:require [clojure.test :refer :all]
             [clj-jtwig.core :refer :all]))
 
@@ -9,6 +10,9 @@
 ; JTwig includes its own test suite which tests actual template parsing and evaluation
 ; functionality, so there's no point in duplicating that kind of testing here once we
 ; establish that the above mentioned stuff works fine.
+;
+; Some of the variable passing and return / iteration verification tests might be a bit
+; overkill, but better safe than sorry. :)
 
 (deftest string-template
   (testing "Evaluating templates in string vars"
@@ -113,3 +117,210 @@
                          {:name "Bob"}
                          {:skip-model-map-stringify? true}))
           "passing a model-map where the keys are keywords and try skipping auto stringifying the keys"))))
+
+(deftest template-functions
+  (testing "Adding custom template functions"
+    (do
+      (reset-functions!)
+
+      (is (nil? (deftwigfn "add" [a b]
+                  (+ a b))))
+
+      (is (true? (function-exists? "add")))
+      (is (false? (function-exists? "foobar")))
+
+      (is (thrown?
+            Exception
+            (deftwigfn "add" [a b]
+              (+ a b))))
+
+      (is (= (render "{{add(1, 2)}}" nil)
+             "3")
+          "calling a custom function")
+      (is (= (render "{{add(a, b)}}" {:a 1 :b 2})
+             "3")
+          "calling a custom function, passing in variables from the model-map as arguments")
+      (is (= (render "{{x|add(1)}}" {:x 1})
+             "2")
+          "calling a custom function using the 'filter' syntax")
+
+      (reset-functions!)))
+
+  (testing "Fixed and variable number of template function arguments"
+    (do
+      (reset-functions!)
+
+      (is (nil? (deftwigfn "add2" [a b]
+                  (+ a b))))
+      (is (true? (function-exists? "add2")))
+      (is (nil? (deftwigfn "addAll" [& numbers]
+                  (apply + numbers))))
+      (is (true? (function-exists? "addAll")))
+
+      (is (= (render "{{add2(1, 2)}}" nil)
+             "3")
+          "fixed number of arguments (correct amount)")
+      (is (thrown?
+            ArityException
+            (render "{{add2(1)}}" nil)))
+      (is (= (render "{{addAll(1, 2, 3, 4, 5)}}" nil)
+             "15")
+          "variable number of arguments (non-zero)")
+      (is (= (render "{{addAll}}" nil)
+             "null")
+          "variable number of arguments (zero)")
+
+      (reset-functions!)))
+
+  (testing "Passing different data structures to template functions"
+    (do
+      (reset-functions!)
+
+      (is (nil? (deftwigfn "identity" [x]
+                  x)))
+      (is (true? (function-exists? "identity")))
+      (is (nil? (deftwigfn "typename" [x]
+                  (.getName (type x)))))
+      (is (true? (function-exists? "typename")))
+
+      ; verify that the clojure function recognizes the correct types when the variable is passed via the model-map
+      (is (= (render "{{typename(x)}}" {:x 42})
+             "java.lang.Long")
+          "integer typename via model-map")
+      (is (= (render "{{typename(x)}}" {:x 3.14})
+             "java.lang.Double")
+          "float typename via model-map")
+      (is (= (render "{{typename(x)}}" {:x "foobar"})
+             "java.lang.String")
+          "string typename via model-map")
+      (is (= (render "{{typename(x)}}" {:x \a})
+             "java.lang.Character")
+          "char typename via model-map")
+      (is (= (render "{{typename(x)}}" {:x true})
+             "java.lang.Boolean")
+          "boolean typename via model-map")
+      (is (= (render "{{typename(x)}}" {:x '(1 2 3 4 5)})
+             "clojure.lang.PersistentList")
+          "list typename via model-map")
+      (is (= (render "{{typename(x)}}" {:x [1 2 3 4 5]})
+             "clojure.lang.PersistentVector")
+          "vector typename via model-map")
+      (is (= (render "{{typename(x)}}" {:x {:a 1 :b "foo" :c nil}})
+             "clojure.lang.PersistentArrayMap")
+          "map typename via model-map")
+      (is (= (render "{{typename(x)}}" {:x #{1 2 3 4 5}})
+             "clojure.lang.PersistentHashSet")
+          "set typename via model-map")
+
+      ; verify that the clojure function recognizes the correct types when the variable is passed via a constant
+      ; value embedded in the template
+      (is (= (render "{{typename(42)}}" nil)
+             "java.lang.Integer")
+          "integer typename via constant value embedded in the template")
+      (is (= (render "{{typename(3.14)}}" nil)
+             "java.lang.Double")
+          "float typename via constant value embedded in the template")
+      (is (= (render "{{typename('foobar')}}" nil)
+             "java.lang.String")
+          "string typename via constant value embedded in the template")
+      (is (= (render "{{typename('a')}}" nil)
+             "java.lang.Character")
+          "char typename via constant value embedded in the template")
+      (is (= (render "{{typename(true)}}" nil)
+             "java.lang.Boolean")
+          "boolean typename via constant value embedded in the template")
+      (is (= (render "{{typename([1, 2, 3, 4, 5])}}" nil)
+             "java.util.ArrayList")
+          "list typename via constant value embedded in the template")
+      (is (= (render "{{typename(1..5)}}" nil)
+             "java.util.ArrayList")
+          "vector typename via constant value embedded in the template")
+      (is (= (render "{{typename({a: 1, b: 'foo', c: null})}}" nil)
+             "java.util.HashMap")
+          "map typename via constant value embedded in the template")
+
+      ; simple passing / returning... not doing anything exciting with the arguments
+      ; using a constant value embedded inside the template
+      (is (= (render "{{identity(x)}}" {:x 42})
+             "42")
+          "integer via model-map")
+      (is (= (render "{{identity(x)}}" {:x 3.14})
+             "3.14")
+          "float via model-map")
+      (is (= (render "{{identity(x)}}" {:x "foobar"})
+             "foobar")
+          "string via model-map")
+      (is (= (render "{{identity(x)}}" {:x \a})
+             "a")
+          "char via model-map")
+      (is (= (render "{{identity(x)}}" {:x true})
+             "true")
+          "boolean via model-map")
+      (is (= (render "{{identity(x)}}" {:x '(1 2 3 4 5)})
+             "(1 2 3 4 5)")
+          "list via model-map")
+      (is (= (render "{{identity(x)}}" {:x [1 2 3 4 5]})
+             "[1 2 3 4 5]")
+          "vector via model-map")
+      (is (= (render "{{identity(x)}}" {:x {:a 1 :b "foo" :c nil}})
+             "{\"a\" 1, \"c\" nil, \"b\" \"foo\"}")
+          "map via model-map")
+      (is (= (render "{{identity(x)}}" {:x #{1 2 3 4 5}})
+             "#{1 2 3 4 5}")
+          "set via model-map")
+
+      ; simple passing / returning... not doing anything exciting with the arguments
+      ; using a constant value embedded inside the template
+      (is (= (render "{{identity(42)}}" nil)
+             "42")
+          "integer via constant value embedded in the template")
+      (is (= (render "{{identity(3.14)}}" nil)
+             "3.14")
+          "float via constant value embedded in the template")
+      (is (= (render "{{identity('foobar')}}" nil)
+             "foobar")
+          "string via constant value embedded in the template")
+      (is (= (render "{{identity('a')}}" nil)
+             "a")
+          "char via constant value embedded in the template")
+      (is (= (render "{{identity(true)}}" nil)
+             "true")
+          "boolean via constant value embedded in the template")
+      (is (= (render "{{identity([1, 2, 3, 4, 5])}}" nil)
+             "[1, 2, 3, 4, 5]")
+          "enumerated list via constant value embedded in the template")
+      (is (= (render "{{identity(1..5)}}" nil)
+             "[1, 2, 3, 4, 5]")
+          "list by comprehension via constant value embedded in the template")
+      (is (= (render "{{identity({a: 1, b: 'foo', c: null})}}" nil)
+             "{b=foo, c=null, a=1}")
+          "map via constant value embedded in the template")
+
+      ; iterating over passed sequence/collection type arguments passed to a custom function from a variable
+      ; inside the model-map and being returned
+      (is (= (render "{% for i in identity(x) %}{{i}} {% endfor %}" {:x '(1 2 3 4 5)})
+             "1 2 3 4 5 ")
+          "list (iterating over a model-map var passed to a function and returned from it)")
+      (is (= (render "{% for i in identity(x) %}{{i}} {% endfor %}" {:x [1 2 3 4 5]})
+             "1 2 3 4 5 ")
+          "vector (iterating over a model-map var passed to a function and returned from it)")
+      (is (= (render "{% for k, v in identity(x) %}{{k}}: {{v}} {% endfor %}" {:x {:a 1 :b "foo" :c nil}})
+             "a: 1 c: null b: foo ")
+          "map (iterating over a model-map var passed to a function and returned from it)")
+      (is (= (render "{% for i in identity(x) %}{{i}} {% endfor %}" {:x #{1 2 3 4 5}})
+             "1 2 3 4 5 ")
+          "set (iterating over a model-map var passed to a function and returned from it)")
+
+      ; iterating over passed sequence/collection type arguments passed to a custom function from a constant
+      ; value embedded in the template and being returned
+      (is (= (render "{% for i in identity([1, 2, 3, 4, 5]) %}{{i}} {% endfor %}" nil)
+             "1 2 3 4 5 ")
+          "enumerated list (iterating over a model-map var passed to a function and returned from it)")
+      (is (= (render "{% for i in identity(1..5) %}{{i}} {% endfor %}" nil)
+             "1 2 3 4 5 ")
+          "list by comprehension (iterating over a model-map var passed to a function and returned from it)")
+      (is (= (render "{% for k, v in identity({a: 1, b: 'foo', c: null}) %}{{k}}: {{v}} {% endfor %}" nil)
+             "b: foo c: null a: 1 ")
+          "map (iterating over a model-map var passed to a function and returned from it)")
+
+      (reset-functions!))))
