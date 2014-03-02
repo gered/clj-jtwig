@@ -12,6 +12,12 @@
 ; global options
 (defonce options (atom {:cache-compiled-templates true}))
 
+(defn toggle-compiled-template-caching!
+  "toggle caching of compiled templates on/off. if off, every time a template is rendered from a file
+   it will be re-loaded from disk and re-compiled before being rendered. caching is turned on by default."
+  [enable?]
+  (swap! options assoc :cache-compiled-templates enable?))
+
 ; cache of compiled templates. key is the file path. value is a map with :last-modified which is the source file's
 ; last modification timestamp and :template which is a JTwig Content object which has been compiled already and can
 ; be rendered by calling it's 'render' method
@@ -68,10 +74,12 @@
 (defn- compile-template! [^File file]
   (if-not (.exists file)
     (throw (new FileNotFoundException (str "Template file \"" file "\" not found.")))
-    (cache-compiled-template!
-      file
-      (fn [file]
-        (compile-template-file file)))))
+    (let [compile-template-fn (fn [file]
+                                (println "compiling template: " file)
+                                (compile-template-file file))]
+      (if (:cache-compiled-templates @options)
+        (cache-compiled-template! file compile-template-fn)
+        (compile-template-fn file)))))
 
 (defn flush-template-cache!
   "removes any cached compiled templates, forcing all future template rendering to first re-compile before
