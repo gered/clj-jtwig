@@ -6,7 +6,7 @@
            (com.lyncode.jtwig.functions.exceptions FunctionNotFoundException)
            (com.lyncode.jtwig.functions.repository DefaultFunctionRepository)
            (com.lyncode.jtwig.functions JtwigFunction)
-           (java.io File FileNotFoundException)))
+           (java.io File FileNotFoundException ByteArrayOutputStream)))
 
 ; cache of compiled templates. key is the file path. value is a map with :last-modified which is the source file's
 ; last modification timestamp and :template which is a JTwig Content object which has been compiled already and can
@@ -87,25 +87,28 @@
   (let [model-map-obj (make-model-map model-map options)]
     (new JtwigContext model-map-obj @functions)))
 
-(defn- render-template
-  [template model-map & [options]]
-  (.output template (make-context model-map options)))
+(defn- render-compiled-template
+  [compiled-template model-map & [options]]
+  (let [context (make-context model-map options)]
+    ; technically we don't have to use with-open with a ByteArrayOutputStream but if we later
+    ; decide to use another OutputStream implementation, this is already all set up :)
+    (with-open [stream (new ByteArrayOutputStream)]
+      (.render compiled-template stream context)
+      (.toString stream))))
 
 (defn render
   "renders a template contained in the provided string, using the values in model-map
    as the model for the template."
   [s model-map & [options]]
-  (let [template (new JtwigTemplate s)]
-    (render-template template model-map options)))
+  (let [compiled-template (compile-template-string s)]
+    (render-compiled-template compiled-template model-map options)))
 
 (defn render-file
   "renders a template from a file, using the values in model-map as the model for the template"
   [filename model-map & [options]]
-  (let [file     (new File filename)
-        template (new JtwigTemplate file)]
-    (if-not (.exists file)
-      (throw (new FileNotFoundException (str "Template file \"" filename "\" not found."))))
-    (render-template template model-map options)))
+  (let [file              (new File filename)
+        compiled-template (get-compiled-template file)]
+    (render-compiled-template compiled-template model-map options)))
 
 (defn render-resource
   "renders a template from a resource file, using the values in the model-map as the model for
