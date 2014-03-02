@@ -1,6 +1,5 @@
 (ns clj-jtwig.core
-  (:require [clojure.walk :refer [stringify-keys]]
-            [clojure.java.io :as io])
+  (:require [clojure.walk :refer [stringify-keys]])
   (:import (com.lyncode.jtwig JtwigTemplate JtwigContext JtwigModelMap)
            (com.lyncode.jtwig.functions.exceptions FunctionNotFoundException)
            (com.lyncode.jtwig.functions.repository DefaultFunctionRepository)
