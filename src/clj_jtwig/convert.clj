@@ -1,51 +1,51 @@
 (ns clj-jtwig.convert)
 
 (defprotocol JavaToClojure
-  (convert [x]))
+  (to-clojure [x]))
 
 (extend-protocol JavaToClojure
   java.util.Collection
-  (convert [x]
-    (map convert x))
+  (to-clojure [x]
+    (map to-clojure x))
 
   java.util.Map
-  (convert [x]
+  (to-clojure [x]
     (->> x
          (.entrySet)
          (reduce
            (fn [m [k v]]
              ; TODO: perhaps we should be doing (keyword k) instead? i don't like that it technically is not an
              ;       exact conversion if we do it that way though, even if it is more idiomatic for clojure ...
-             (assoc m k (convert v)))
+             (assoc m k (to-clojure v)))
            {})))
 
   java.lang.Number
-  (convert [x]
+  (to-clojure [x]
     x)
 
   java.lang.Boolean
-  (convert [x]
+  (to-clojure [x]
     x)
 
   java.lang.Character
-  (convert [x]
+  (to-clojure [x]
     x)
 
   java.lang.String
-  (convert [x]
+  (to-clojure [x]
     x)
 
   java.lang.Object
-  (convert [x]
+  (to-clojure [x]
     (-> x
         (bean)    ; TODO: this is definitely not the fastest method ...
         (dissoc :class)))
 
   nil
-  (convert [_]
+  (to-clojure [_]
     nil))
 
 (defn java->clojure
   "converts a java value to an equivalent value using one of the clojure data types"
   [x]
-  (convert x))
+  (to-clojure x))
