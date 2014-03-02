@@ -19,8 +19,8 @@
   (swap! options assoc :cache-compiled-templates enable?))
 
 ; cache of compiled templates. key is the file path. value is a map with :last-modified which is the source file's
-; last modification timestamp and :template which is a JTwig Content object which has been compiled already and can
-; be rendered by calling it's 'render' method
+; last modification timestamp and :template which is a com.lyncode.jtwig.tree.api.Content object which has been
+; compiled already and can be rendered by calling it's 'render' method
 (defonce compiled-templates (atom {}))
 
 (defn- compile-template-string [^String contents]
