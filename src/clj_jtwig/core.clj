@@ -84,7 +84,7 @@
 
 ; this function really only exists so i can easily change the exception type / message in the future
 ; since this file-exists check is needed in a few places
-(defn- err-if-no-file! [^File file]
+(defn- err-if-no-file [^File file]
   (if-not (.exists file)
     (throw (new FileNotFoundException (str "Template file \"" file "\" not found.")))))
 
@@ -103,7 +103,7 @@
     (cond
       (not cached)
       (do
-        (err-if-no-file! file)
+        (err-if-no-file file)
         (cache-and-return!))
 
       (:skip-file-status-checks @options)
@@ -111,7 +111,7 @@
 
       :else
       (do
-        (err-if-no-file! file)
+        (err-if-no-file file)
         (if (newer? file (:last-modified cached))
           (cache-and-return!)
           (:template cached))))))
@@ -122,7 +122,7 @@
     (if (:cache-compiled-templates @options)
       (cache-compiled-template! file compile-template-fn)
       (do
-        (err-if-no-file! file)
+        (err-if-no-file file)
         (compile-template-fn file)))))
 
 (defn flush-template-cache!
