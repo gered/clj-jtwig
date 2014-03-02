@@ -1,5 +1,6 @@
 (ns clj-jtwig.core
-  (:require [clojure.walk :refer [stringify-keys]])
+  (:require [clojure.walk :refer [stringify-keys]]
+            [clj-jtwig.convert :refer [java->clojure clojure->java]])
   (:import (com.lyncode.jtwig JtwigTemplate JtwigContext JtwigModelMap)
            (com.lyncode.jtwig.functions.exceptions FunctionNotFoundException)
            (com.lyncode.jtwig.functions.repository DefaultFunctionRepository)
@@ -35,7 +36,7 @@
     (throw (new Exception (str "JTwig template function \"" name "\" already defined.")))
     (let [handler (reify JtwigFunction
                     (execute [_ arguments]
-                      (apply f (vec (aclone arguments)))))]
+                      (clojure->java (apply f (map java->clojure arguments)))))]
       (.add @functions handler name (make-array String 0))
       (.retrieve @functions name))))
 
