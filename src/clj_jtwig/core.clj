@@ -35,6 +35,16 @@
     0
     (.lastModified file)))
 
+(defn- newer? [^File file other-timestamp]
+  (let [file-last-modified (get-file-last-modified file)]
+    ; a time of 0 means the modification time couldn't be read or the file is inside a JAR container. if it's an I/O
+    ; error, we'll get an exception during file reading. so, just return true indicating that the file is "newer"
+    ; and assume that the file is inside a JAR in which case, we can't do proper time-based caching anyway, so lets
+    ; just always re-compile
+    (if (= 0 file-last-modified)
+      true
+      (> file-last-modified other-timestamp))))
+
 (defn- get-compiled-template [^File file]
   (if-not (.exists file)
     (throw (new FileNotFoundException (str "Template file \"" file "\" not found.")))
