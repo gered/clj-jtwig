@@ -54,13 +54,18 @@
       (.getContextClassLoader)
       (.getResource filename)))
 
-(defn- make-context [model-map {:keys [skip-model-map-stringify?] :as options}]
-  (let [context (new JtwigContext (new JtwigModelMap) @functions)]
-    (doseq [[k v] (if-not skip-model-map-stringify?
-                    (stringify-keys model-map)
-                    model-map)]
-      (.set context k v))
-    context))
+(defn- make-model-map [model-map-values {:keys [skip-model-map-stringify?] :as options}]
+  (let [model-map-obj (new JtwigModelMap)
+        values        (if-not skip-model-map-stringify?
+                        (stringify-keys model-map-values)
+                        model-map-values)]
+    (doseq [[k v] values]
+      (.add model-map-obj k v))
+    model-map-obj))
+
+(defn- make-context [model-map options]
+  (let [model-map-obj (make-model-map model-map options)]
+    (new JtwigContext model-map-obj @functions)))
 
 (defn- render-template
   [template model-map & [options]]
