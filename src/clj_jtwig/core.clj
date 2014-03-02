@@ -80,7 +80,6 @@
   (if-not (.exists file)
     (throw (new FileNotFoundException (str "Template file \"" file "\" not found.")))
     (let [compile-template-fn (fn [file]
-                                (println "compiling template: " file)
                                 (compile-template-file file))]
       (if (:cache-compiled-templates @options)
         (cache-compiled-template! file compile-template-fn)
