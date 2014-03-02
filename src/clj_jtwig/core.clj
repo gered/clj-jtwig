@@ -9,6 +9,9 @@
            (com.lyncode.jtwig.tree.api Content)
            (java.io File FileNotFoundException ByteArrayOutputStream)))
 
+; global options
+(defonce options (atom {:cache-compiled-templates true}))
+
 ; cache of compiled templates. key is the file path. value is a map with :last-modified which is the source file's
 ; last modification timestamp and :template which is a JTwig Content object which has been compiled already and can
 ; be rendered by calling it's 'render' method
