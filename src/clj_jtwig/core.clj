@@ -26,19 +26,27 @@
     (catch FunctionNotFoundException ex
       false)))
 
+(defn add-function!
+  "adds a new template function using the name specified. templates can call the function by the
+   name specified and passing in the same number of arguments accepted by f. the return value of
+   f is returned to the template.
+   prefer to use the 'deftwigfn' macro when possible."
+  [name f]
+  (if (function-exists? name)
+    (throw (new Exception (str "JTwig template function \"" name "\" already defined.")))
+    (let [handler (reify JtwigFunction
+                    (execute [_ arguments]
+                      (apply f (vec (aclone arguments)))))]
+      (.add @functions handler name (make-array String 0))
+      (.retrieve @functions name))))
+
 (defmacro deftwigfn
-  "Adds a new template function. Templates can call it by calling a function using the supplied
-   fn-name and passing the listed arguments. The value of the last form in the function is returned
-   to the template."
+  "adds a new template function. templates can call it by by the name specified and passing in the
+   same number of arguments as in args. the return value of the last form in body is returned to the
+   template."
   [fn-name args & body]
   `(do
-     (if (function-exists? ~fn-name)
-       (throw (new Exception (str "JTwig template function \"" ~fn-name "\" already defined.")))
-       (let [func#    (fn ~args ~@body)
-             handler# (reify JtwigFunction
-                        (execute [_ arguments#]
-                          (apply func# (vec (aclone arguments#)))))]
-         (.add @functions handler# ~fn-name (make-array String 0))))))
+     (add-function! ~fn-name (fn ~args ~@body))))
 
 (defn- get-resource-path [filename]
   (-> (Thread/currentThread)
