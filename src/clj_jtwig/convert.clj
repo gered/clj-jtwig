@@ -49,3 +49,34 @@
   "converts a java value to an equivalent value using one of the clojure data types"
   [x]
   (to-clojure x))
+
+(defprotocol ClojureToJava
+  (to-java [x]))
+
+(extend-protocol ClojureToJava
+  clojure.lang.IPersistentMap
+  (to-java [x]
+    (let [hashmap (new java.util.HashMap (count x))]
+      (doseq [[k v] x]
+        (.put hashmap (to-java k) (to-java v)))
+      hashmap))
+
+  clojure.lang.IPersistentCollection
+  (to-java [x]
+    (let [array (new java.util.ArrayList (count x))]
+      (doseq [item x]
+        (.add array (to-java item)))
+      array))
+
+  java.lang.Object
+  (to-java [x]
+    x)
+
+  nil
+  (to-java [x]
+    nil))
+
+(defn clojure->java
+  "converts a clojure value to an equivalent value using a java object"
+  [x]
+  (to-java x))
