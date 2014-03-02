@@ -59,3 +59,57 @@
     (is (= nil
            (java->clojure nil))
         "null")))
+
+(deftest clojure-to-java
+  (testing "Converting Clojure values to Java values"
+    (is (= (new Long 42)
+           (clojure->java 42))
+        "integer-type number")
+    (is (= (new Double 3.14159)
+           (clojure->java 3.14159))
+        "floating-point-type number")
+    (is (= (new Boolean true)
+           (clojure->java true))
+        "boolean")
+    (is (= (new Character \a)
+           (clojure->java \a))
+        "character")
+    (is (= (new String "foobar")
+           (clojure->java "foobar"))
+        "string")
+
+    (is (= java.util.ArrayList
+           (class (clojure->java [1 2 3 4 5])))
+        "vector type")
+    (is (= (new java.util.ArrayList [1 2 3 4 5])
+           (clojure->java [1 2 3 4 5]))
+        "vector contents")
+    (is (= java.util.ArrayList
+           (class (clojure->java #{1 2 3 4 5})))
+        "set type")
+    (is (= (new java.util.ArrayList #{1 2 3 4 5})
+           (clojure->java #{1 2 3 4 5}))
+        "set contents")
+    (is (= java.util.ArrayList
+           (class (clojure->java '(1 2 3 4 5))))
+        "list type")
+    (is (= (new java.util.ArrayList '(1 2 3 4 5))
+           (clojure->java '(1 2 3 4 5)))
+        "list contents")
+    (is (= java.util.HashMap
+           (class (clojure->java {:a 1 :b 2 :c 3 :d 4 :e 5})))
+        "map type")
+    (is (= (new java.util.HashMap {:a 1 :b 2 :c 3 :d 4 :e 5})
+           (clojure->java {:a 1 :b 2 :c 3 :d 4 :e 5}))
+        "map contents")
+
+    (is (= (new java.util.ArrayList [1 2 3 4 (new java.util.ArrayList [\a \b \c \d \e])])
+           (clojure->java [1 2 3 4 [\a \b \c \d \e]]))
+        "nested vector contents")
+    (is (= (new java.util.HashMap {:a 1 :b 2 :c 3 :d 4 :e 5 :f (new java.util.HashMap {:foo "foo" "bar" nil :baz (new java.util.HashMap {:lol "hello"})})})
+           (clojure->java {:a 1 :b 2 :c 3 :d 4 :e 5 :f {:foo "foo" "bar" nil :baz {:lol "hello"}}}))
+        "nested map contents")
+
+    (is (= nil
+           (clojure->java nil))
+        "nil")))
