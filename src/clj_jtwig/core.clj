@@ -45,7 +45,7 @@
       true
       (> file-last-modified other-timestamp))))
 
-(defn- get-cached-compiled-template [^File file create-fn]
+(defn- cache-compiled-template! [^File file create-fn]
   (let [filepath          (.getPath file)
         cache-and-return! (fn []
                             (let [new-compiled-template (create-fn file)]
@@ -62,10 +62,10 @@
       (:template cached)
       (cache-and-return!))))
 
-(defn- get-compiled-template [^File file]
+(defn- compile-template! [^File file]
   (if-not (.exists file)
     (throw (new FileNotFoundException (str "Template file \"" file "\" not found.")))
-    (get-cached-compiled-template
+    (cache-compiled-template!
       file
       (fn [file]
         (compile-template-file file)))))
@@ -150,7 +150,7 @@
   "renders a template from a file, using the values in model-map as the model for the template"
   [filename model-map & [options]]
   (let [file              (new File filename)
-        compiled-template (get-compiled-template file)]
+        compiled-template (compile-template! file)]
     (render-compiled-template compiled-template model-map options)))
 
 (defn render-resource
