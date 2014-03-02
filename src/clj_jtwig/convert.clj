@@ -77,7 +77,7 @@
     x)
 
   nil
-  (to-java [x]
+  (to-java [_]
     nil))
 
 (defn java->clojure
