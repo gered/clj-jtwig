@@ -6,6 +6,7 @@
            (com.lyncode.jtwig.functions.exceptions FunctionNotFoundException)
            (com.lyncode.jtwig.functions.repository DefaultFunctionRepository)
            (com.lyncode.jtwig.functions JtwigFunction)
+           (com.lyncode.jtwig.tree.api Content)
            (java.io File FileNotFoundException ByteArrayOutputStream)))
 
 ; cache of compiled templates. key is the file path. value is a map with :last-modified which is the source file's
@@ -23,7 +24,7 @@
        (new JtwigTemplate)
        (.compile)))
 
-(defn- get-compiled-template [file]
+(defn- get-compiled-template [^File file]
   (if-not (.exists file)
     (throw (new FileNotFoundException (str "Template file \"" file "\" not found.")))
     (compile-template-file file)))
@@ -88,7 +89,7 @@
     (new JtwigContext model-map-obj @functions)))
 
 (defn- render-compiled-template
-  [compiled-template model-map & [options]]
+  [^Content compiled-template model-map & [options]]
   (let [context (make-context model-map options)]
     ; technically we don't have to use with-open with a ByteArrayOutputStream but if we later
     ; decide to use another OutputStream implementation, this is already all set up :)
