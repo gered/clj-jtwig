@@ -12,10 +12,15 @@
 ; global options
 (defonce options (atom {:cache-compiled-templates true}))
 
+(declare flush-template-cache!)
+
 (defn toggle-compiled-template-caching!
   "toggle caching of compiled templates on/off. if off, every time a template is rendered from a file
    it will be re-loaded from disk and re-compiled before being rendered. caching is turned on by default."
   [enable?]
+  ; always clear the cache when toggling. this will help ensure that any possiblity of weird behaviour from
+  ; leftover stuff being stuck in the cache pre-toggle-on/off won't happen
+  (flush-template-cache!)
   (swap! options assoc :cache-compiled-templates enable?))
 
 ; cache of compiled templates. key is the file path. value is a map with :last-modified which is the source file's
