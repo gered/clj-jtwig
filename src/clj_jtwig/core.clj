@@ -98,7 +98,8 @@
 
 (defn render
   "renders a template contained in the provided string, using the values in model-map
-   as the model for the template."
+   as the model for the template. templates rendered using this function are always
+   parsed, compiled and rendered. the compiled results are never cached."
   [s model-map & [options]]
   (let [compiled-template (compile-template-string s)]
     (render-compiled-template compiled-template model-map options)))
