@@ -65,7 +65,10 @@
 (defn- get-compiled-template [^File file]
   (if-not (.exists file)
     (throw (new FileNotFoundException (str "Template file \"" file "\" not found.")))
-    (compile-template-file file)))
+    (get-cached-compiled-template
+      file
+      (fn [file]
+        (compile-template-file file)))))
 
 (defn- create-function-repository []
   (new DefaultFunctionRepository (make-array JtwigFunction 0)))
