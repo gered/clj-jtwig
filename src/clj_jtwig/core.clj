@@ -8,6 +8,11 @@
            (com.lyncode.jtwig.functions JtwigFunction)
            (java.io File FileNotFoundException)))
 
+; cache of compiled templates. key is the file path. value is a map with :last-modified which is the source file's
+; last modification timestamp and :template which is a JTwig Content object which has been compiled already and can
+; be rendered by calling it's 'render' method
+(defonce compiled-templates (atom {}))
+
 (defn- create-function-repository []
   (new DefaultFunctionRepository (make-array JtwigFunction 0)))
 
