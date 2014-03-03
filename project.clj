@@ -6,4 +6,4 @@
   :repositories [["sonatype" {:url "http://oss.sonatype.org/content/repositories/releases"
                               :snapshots false}]]
   :dependencies [[org.clojure/clojure "1.5.1"]
-                 [com.lyncode/jtwig-core "2.1.0"]])
+                 [com.lyncode/jtwig-core "2.1.1"]])
