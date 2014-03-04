@@ -4,7 +4,8 @@
   (:import (com.lyncode.jtwig.functions JtwigFunction)
            (com.lyncode.jtwig.functions.repository DefaultFunctionRepository)
            (com.lyncode.jtwig.functions.exceptions FunctionNotFoundException FunctionException))
-  (:require [clj-jtwig.convert :refer [java->clojure clojure->java]]))
+  (:require [clj-jtwig.convert :refer [java->clojure clojure->java]])
+  (:use [clojure.pprint]))
 
 (defn- create-function-repository []
   (new DefaultFunctionRepository (make-array JtwigFunction 0)))
