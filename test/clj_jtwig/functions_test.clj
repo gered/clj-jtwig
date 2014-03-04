@@ -242,4 +242,78 @@
     (is (true? (function-exists? "sort")))
     (is (true? (function-exists? "sortDescending")))
     (is (true? (function-exists? "sortBy")))
-    (is (true? (function-exists? "sortDescendingBy")))))
+    (is (true? (function-exists? "sortDescendingBy"))))
+
+  (testing "blankIfNull"
+    (is (= (render "{{ a|blankIfNull }}" nil)
+           ""))
+    (is (= (render "{{ a|blankIfNull }}" {:a nil})
+           ""))
+    (is (= (render "{{ a|blankIfNull }}" {:a "foo"})
+           "foo")))
+
+  (testing "butlast"
+    (is (= (render "{{ [1, 2, 3, 4, 5]|butlast }}" nil)
+           "[1, 2, 3, 4]")))
+
+  (testing "dump"
+    (is (= (render "{{ a|dump }}" {:a [{:foo "bar"} [1, 2, 3] "hello"]})
+           "({\"foo\" \"bar\"} (1 2 3) \"hello\")\n")))
+
+  (testing "nth"
+    (is (= (render "{{ [1, 2, 3, 4, 5]|nth(2) }}" nil)
+           "3"))
+    (is (thrown-with-msg?
+          Exception
+          #"java.lang.IndexOutOfBoundsException"
+          (render "{{ [1, 2, 3, 4, 5]|nth(6) }}" nil)))
+    (is (= (render "{{ [1, 2, 3, 4, 5]|nth(6, \"not found\") }}" nil)
+           "not found")))
+
+  (testing "max"
+    (is (= (render "{{ [2, 1, 5, 3, 4]|max }}" nil)
+           "5"))
+    (is (= (render "{{ max(2, 1, 5, 3, 4) }}" nil)
+           "5")))
+
+  (testing "min"
+    (is (= (render "{{ [2, 1, 5, 3, 4]|min }}" nil)
+           "1"))
+    (is (= (render "{{ min(2, 1, 5, 3, 4) }}" nil)
+           "1")))
+
+  (testing "random"
+    (is (some #{(render "{{ ['apple', 'orange', 'citrus']|random }}" nil)}
+              ["apple" "orange" "citrus"]))
+    (is (some #{(render "{{ \"ABC\"|random }}" nil)}
+              ["A" "B" "C"])))
+
+  (testing "range"
+    (is (= (render "{{ range(1, 5) }}" nil)
+           "[1, 2, 3, 4]"))
+    (is (= (render "{{ range(1, 5, 2) }}" nil)
+           "[1, 3]")))
+
+  (testing "rest"
+    (is (= (render "{{ [1, 2, 3, 4, 5]|rest }}" nil)
+           "[2, 3, 4, 5]")))
+
+  (testing "second"
+    (is (= (render "{{ [1, 2, 3, 4, 5]|second }}" nil)
+           "2")))
+
+  (testing "sort"
+    (is (= (render "{{ [2, 1, 5, 3, 4]|sort }}" nil)
+           "[1, 2, 3, 4, 5]")))
+
+  (testing "sortDescending"
+    (is (= (render "{{ [2, 1, 5, 3, 4]|sortDescending }}" nil)
+           "[5, 4, 3, 2, 1]")))
+
+  (testing "sortBy"
+    (is (= (render "{{ [{a: 2}, {a: 1}, {a: 5}, {a: 3}, {a: 4}]|sortBy(\"a\") }}" nil)
+           "[{a=1}, {a=2}, {a=3}, {a=4}, {a=5}]")))
+
+  (testing "sortDescendingBy"
+    (is (= (render "{{ [{a: 2}, {a: 1}, {a: 5}, {a: 3}, {a: 4}]|sortDescendingBy(\"a\") }}" nil)
+           "[{a=5}, {a=4}, {a=3}, {a=2}, {a=1}]"))))
