@@ -63,3 +63,83 @@
   [fn-name args aliases & body]
   `(do
      (add-function! ~fn-name ~aliases (fn ~args ~@body))))
+
+;; ============================================================================
+;;   Standard functions
+;; ============================================================================
+
+(deftwigfn "blankIfNull" [x]
+  (if (nil? x) "" x))
+
+(deftwigfn "butlast" [sequence]
+  ; matching behaviour of jtwig's first/last implementation
+  (if (map? sequence)
+    (-> sequence vals butlast)
+    (butlast sequence)))
+
+(deftwigfn "dump" [x]
+  (with-out-str (clojure.pprint/pprint x)))
+
+(deftwigfn "nth" [sequence index & optional-not-found]
+  (let [values (if (map? sequence)    ; map instance check to match behaviour of jtwig's first/last implementation
+                 (-> sequence vals)
+                 sequence)]
+    (if optional-not-found
+      (nth values index (first optional-not-found))
+      (nth values index))))
+
+(deftwigfn "max" [& numbers]
+  (if (coll? (first numbers))
+    (apply max (first numbers))
+    (apply max numbers)))
+
+(deftwigfn "min" [& numbers]
+  (if (coll? (first numbers))
+    (apply min (first numbers))
+    (apply min numbers)))
+
+(deftwigfn "random" [& values]
+  (let [first-value (first values)]
+    (cond
+      (and (= (count values) 1)
+           (coll? first-value))
+      (rand-nth first-value)
+
+      (> (count values) 1)
+      (rand-nth values)
+
+      (string? first-value)
+      (rand-nth (seq first-value))
+
+      (number? first-value)
+      (rand-int first-value)
+
+      :else
+      (rand))))
+
+(deftwigfn "range" [low high & [step]]
+  (range low high (or step 1)))
+
+(deftwigfn "rest" [sequence]
+  ; matching behaviour of jtwig's first/last implementation
+  (if (map? sequence)
+    (-> sequence vals rest)
+    (rest sequence)))
+
+(deftwigfn "second" [sequence]
+  ; matching behaviour of jtwig's first/last implementation
+  (if (map? sequence)
+    (-> sequence vals second)
+    (second sequence)))
+
+(deftwigfn "sort" [sequence]
+  (sort < sequence))
+
+(deftwigfn "sortDescending" [sequence]
+  (sort > sequence))
+
+(deftwigfn "sortBy" [coll k]
+  (sort-by #(get % k) coll))
+
+(deftwigfn "sortDescendingBy" [coll k]
+  (sort-by #(get % k) #(compare %2 %1) coll))
