@@ -49,26 +49,26 @@
       false)))
 
 (defn add-function!
-  "adds a new template function using the name specified. templates can call the function by the
+  "adds a new template function under the name specified. templates can call the function by the
    name specified (or one of the aliases specified) and passing in the same number of arguments
-   accepted by f. the return value of f is returned to the template. if this function has no aliases
-   then nil can be specified for the aliases arg.
-   prefer to use the 'deftwigfn' macro when possible."
-  [name aliases f]
-  (let [handler (make-function-handler f)]
-    (.add @functions handler name (make-aliased-array aliases))
-    (.retrieve @functions name)))
+   accepted by f. the return value of f is returned to the template."
+  ([name f]
+   (add-function! name nil f))
+  ([name aliases f]
+   (let [handler (make-function-handler f)]
+     (.add @functions handler name (make-aliased-array aliases))
+     (.retrieve @functions name))))
 
 (defmacro deftwigfn
-  "adds a new template function. templates can call it by by the name specified and passing in the
+  "defines a new template function. templates can call it by by the name specified and passing in the
    same number of arguments as in args. the return value of the last form in body is returned to the
    template. functions defined this way have no aliases and can only be called by the name given."
   [fn-name args & body]
   `(do
-     (add-function! ~fn-name nil (fn ~args ~@body))))
+     (add-function! ~fn-name (fn ~args ~@body))))
 
 (defmacro defaliasedtwigfn
-  "adds a new template function. templates can call it by by the name specified (or one of the
+  "defines a new template function. templates can call it by by the name specified (or one of the
    aliases specified) and passing in the same number of arguments as in args. the return value of
    the last form in body is returned to the template."
   [fn-name args aliases & body]
