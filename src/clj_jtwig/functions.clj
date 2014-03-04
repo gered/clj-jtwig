@@ -25,25 +25,41 @@
     (catch FunctionNotFoundException ex
       false)))
 
+(defn- make-aliases-array [aliases]
+  (let [n     (count aliases)
+        array (make-array String n)]
+    (doseq [index (range n)]
+      (aset array index (nth aliases index)))
+    array))
+
 (defn add-function!
   "adds a new template function using the name specified. templates can call the function by the
-   name specified and passing in the same number of arguments accepted by f. the return value of
-   f is returned to the template.
+   name specified (or one of the aliases specified) and passing in the same number of arguments
+   accepted by f. the return value of f is returned to the template. if this function has no aliases
+   then nil can be specified for the aliases arg.
    prefer to use the 'deftwigfn' macro when possible."
-  [name f]
+  [name aliases f]
   (let [handler (reify JtwigFunction
                   (execute [_ arguments]
                     (try
                       (clojure->java (apply f (map java->clojure arguments)))
                       (catch Exception ex
                         (throw (new FunctionException ex))))))]
-    (.add @functions handler name (make-array String 0))
+    (.add @functions handler name (make-aliases-array aliases))
     (.retrieve @functions name)))
 
 (defmacro deftwigfn
   "adds a new template function. templates can call it by by the name specified and passing in the
    same number of arguments as in args. the return value of the last form in body is returned to the
-   template."
+   template. functions defined this way have no aliases and can only be called by the name given."
   [fn-name args & body]
   `(do
-     (add-function! ~fn-name (fn ~args ~@body))))
+     (add-function! ~fn-name nil (fn ~args ~@body))))
+
+(defmacro defaliasedtwigfn
+  "adds a new template function. templates can call it by by the name specified (or one of the
+   aliases specified) and passing in the same number of arguments as in args. the return value of
+   the last form in body is returned to the template."
+  [fn-name args aliases & body]
+  `(do
+     (add-function! ~fn-name ~aliases (fn ~args ~@body))))
