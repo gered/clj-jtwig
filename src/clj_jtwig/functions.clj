@@ -36,8 +36,7 @@
                     (try
                       (clojure->java (apply f (map java->clojure arguments)))
                       (catch Exception ex
-                        (println "exception!")
-                        (throw (new FunctionException (.getMessage ex) ex))))))]
+                        (throw (new FunctionException ex))))))]
     (.add @functions handler name (make-array String 0))
     (.retrieve @functions name)))
 
