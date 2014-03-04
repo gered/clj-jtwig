@@ -1,6 +1,5 @@
 (ns clj-jtwig.functions
-  "standard functions added to jtwig contexts by default. these are in addition to the
- functions added by default in all jtwig function repository objects"
+  "custom template function/filter support functions."
   (:import (com.lyncode.jtwig.functions JtwigFunction)
            (com.lyncode.jtwig.functions.repository DefaultFunctionRepository)
            (com.lyncode.jtwig.functions.exceptions FunctionNotFoundException FunctionException))
@@ -41,7 +40,7 @@
   []
   (reset! functions (create-function-repository)))
 
-(defn function-exists? [name]
+(defn function-exists? [^String name]
   (try
     (.retrieve @functions name)
     true
@@ -52,9 +51,9 @@
   "adds a new template function under the name specified. templates can call the function by the
    name specified (or one of the aliases specified) and passing in the same number of arguments
    accepted by f. the return value of f is returned to the template."
-  ([name f]
+  ([^String name f]
    (add-function! name nil f))
-  ([name aliases f]
+  ([^String name aliases f]
    (let [handler (make-function-handler f)]
      (.add @functions handler name (make-aliased-array aliases))
      (.retrieve @functions name))))

@@ -18,14 +18,14 @@
 
       (is (valid-function-handler?
             (deftwigfn "add" [a b]
-                       (+ a b))))
+              (+ a b))))
 
       (is (true? (function-exists? "add")))
       (is (false? (function-exists? "foobar")))
 
       (is (valid-function-handler?
             (deftwigfn "add" [a b]
-                       (+ a b))))
+              (+ a b))))
 
       (is (= (render "{{add(1, 2)}}" nil)
              "3")
@@ -39,17 +39,42 @@
 
       (reset-functions!)))
 
+  (testing "Custom template function aliases"
+    (do
+      (reset-functions!)
+
+      (is (valid-function-handler?
+            (defaliasedtwigfn "add" [a b]
+              ["plus" "myAddFn"]
+              (+ a b))))
+
+      (is (true? (function-exists? "add")))
+      (is (true? (function-exists? "plus")))
+      (is (true? (function-exists? "myAddFn")))
+
+      (is (= (render "{{add(1, 2)}}" nil)
+             "3")
+          "calling a custom function by name")
+      (is (= (render "{{plus(1, 2)}}" nil)
+             "3")
+          "calling a custom function by alias")
+      (is (= (render "{{myAddFn(1, 2)}}" nil)
+             "3")
+          "calling a custom function by another alias")
+
+      (reset-functions!)))
+
   (testing "Fixed and variable number of template function arguments"
     (do
       (reset-functions!)
 
       (is (valid-function-handler?
             (deftwigfn "add2" [a b]
-                       (+ a b))))
+              (+ a b))))
       (is (true? (function-exists? "add2")))
       (is (valid-function-handler?
             (deftwigfn "addAll" [& numbers]
-                       (apply + numbers))))
+              (apply + numbers))))
       (is (true? (function-exists? "addAll")))
 
       (is (= (render "{{add2(1, 2)}}" nil)
@@ -74,11 +99,11 @@
 
       (is (valid-function-handler?
             (deftwigfn "identity" [x]
-                       x)))
+              x)))
       (is (true? (function-exists? "identity")))
       (is (valid-function-handler?
             (deftwigfn "typename" [x]
-                       (.getName (type x)))))
+              (.getName (type x)))))
       (is (true? (function-exists? "typename")))
 
       ; verify that the clojure function recognizes the correct types when the variable is passed via the model-map
@@ -250,7 +275,9 @@
     (is (= (render "{{ a|blankIfNull }}" {:a nil})
            ""))
     (is (= (render "{{ a|blankIfNull }}" {:a "foo"})
-           "foo")))
+           "foo"))
+    (is (= (render "{{ a|nonull }}" nil)
+           "")))
 
   (testing "butlast"
     (is (= (render "{{ [1, 2, 3, 4, 5]|butlast }}" nil)
