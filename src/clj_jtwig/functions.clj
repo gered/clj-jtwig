@@ -1,6 +1,5 @@
 (ns clj-jtwig.functions
-  "standard functions added to jtwig contexts by default. these are in addition to the
- functions added by default in all jtwig function repository objects"
+  "custom template function/filter support functions."
   (:import (com.lyncode.jtwig.functions JtwigFunction)
            (com.lyncode.jtwig.functions.repository DefaultFunctionRepository)
            (com.lyncode.jtwig.functions.exceptions FunctionNotFoundException FunctionException))
