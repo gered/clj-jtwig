@@ -2,7 +2,8 @@
   "wrapper functions for working with JTwig from clojure"
   (:import (com.lyncode.jtwig JtwigTemplate JtwigContext JtwigModelMap)
            (com.lyncode.jtwig.tree.api Content)
-           (java.io File FileNotFoundException ByteArrayOutputStream))
+           (java.io File FileNotFoundException ByteArrayOutputStream)
+           (java.net URL))
   (:require [clojure.walk :refer [stringify-keys]])
   (:use [clj-jtwig.functions]))
 
@@ -128,10 +129,11 @@
   []
   (reset! compiled-templates {}))
 
-(defn- get-resource-path [filename]
-  (-> (Thread/currentThread)
-      (.getContextClassLoader)
-      (.getResource filename)))
+(defn- get-resource-path
+  (^URL [^String filename]
+   (-> (Thread/currentThread)
+       (.getContextClassLoader)
+       (.getResource filename))))
 
 (defn- make-model-map [model-map-values {:keys [skip-model-map-stringify?] :as options}]
   (let [model-map-obj (new JtwigModelMap)
@@ -165,7 +167,7 @@
 
 (defn render-file
   "renders a template from a file, using the values in model-map as the model for the template"
-  [filename model-map & [options]]
+  [^String filename model-map & [options]]
   (let [file              (new File filename)
         compiled-template (compile-template! file)]
     (render-compiled-template compiled-template model-map options)))
@@ -173,6 +175,6 @@
 (defn render-resource
   "renders a template from a resource file, using the values in the model-map as the model for
    the template."
-  [filename model-map & [options]]
+  [^String filename model-map & [options]]
   (if-let [resource-filename (get-resource-path filename)]
     (render-file (.getPath resource-filename) model-map options)))
