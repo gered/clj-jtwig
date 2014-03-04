@@ -3,7 +3,7 @@
  functions added by default in all jtwig function repository objects"
   (:import (com.lyncode.jtwig.functions JtwigFunction)
            (com.lyncode.jtwig.functions.repository DefaultFunctionRepository)
-           (com.lyncode.jtwig.functions.exceptions FunctionNotFoundException))
+           (com.lyncode.jtwig.functions.exceptions FunctionNotFoundException FunctionException))
   (:require [clj-jtwig.convert :refer [java->clojure clojure->java]]))
 
 (defn- create-function-repository []
@@ -31,13 +31,15 @@
    f is returned to the template.
    prefer to use the 'deftwigfn' macro when possible."
   [name f]
-  (if (function-exists? name)
-    (throw (new Exception (str "JTwig template function \"" name "\" already defined.")))
-    (let [handler (reify JtwigFunction
-                    (execute [_ arguments]
-                      (clojure->java (apply f (map java->clojure arguments)))))]
-      (.add @functions handler name (make-array String 0))
-      (.retrieve @functions name))))
+  (let [handler (reify JtwigFunction
+                  (execute [_ arguments]
+                    (try
+                      (clojure->java (apply f (map java->clojure arguments)))
+                      (catch Exception ex
+                        (println "exception!")
+                        (throw (new FunctionException (.getMessage ex) ex))))))]
+    (.add @functions handler name (make-array String 0))
+    (.retrieve @functions name)))
 
 (defmacro deftwigfn
   "adds a new template function. templates can call it by by the name specified and passing in the
