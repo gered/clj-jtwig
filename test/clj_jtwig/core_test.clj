@@ -2,7 +2,8 @@
   (:import (java.io FileNotFoundException)
            (clojure.lang ArityException))
   (:require [clojure.test :refer :all]
-            [clj-jtwig.core :refer :all]))
+            [clj-jtwig.core :refer :all]
+            [clj-jtwig.functions :refer :all]))
 
 ; The purpose of these tests is to establish that our wrapper around JTwig works. That is,
 ; we will be focusing on stuff like making sure that passing Clojure data structures
@@ -20,7 +21,7 @@
        (-> x
            (class)
            (.getName)
-           (.startsWith "clj_jtwig.core$add_function"))))
+           (.startsWith "clj_jtwig.functions$add_function"))))
 
 (deftest string-template
   (testing "Evaluating templates in string vars"
