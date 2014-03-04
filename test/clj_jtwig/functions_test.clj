@@ -250,7 +250,9 @@
     (is (= (render "{{ a|blankIfNull }}" {:a nil})
            ""))
     (is (= (render "{{ a|blankIfNull }}" {:a "foo"})
-           "foo")))
+           "foo"))
+    (is (= (render "{{ a|nonull }}" nil)
+           "")))
 
   (testing "butlast"
     (is (= (render "{{ [1, 2, 3, 4, 5]|butlast }}" nil)

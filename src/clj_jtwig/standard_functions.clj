@@ -13,7 +13,8 @@
 (defonce standard-functions
   {"blankIfNull"
    {:fn (fn [x]
-          (if (nil? x) "" x))}
+          (if (nil? x) "" x))
+    :aliases ["nonull"]}
 
    "butlast"
    {:fn (fn [sequence]
