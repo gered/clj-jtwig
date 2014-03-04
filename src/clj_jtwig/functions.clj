@@ -26,7 +26,7 @@
     (catch FunctionNotFoundException ex
       false)))
 
-(defn- make-aliases-array [aliases]
+(defn- make-aliased-array [aliases]
   (let [n     (count aliases)
         array (make-array String n)]
     (doseq [index (range n)]
@@ -46,7 +46,7 @@
                       (clojure->java (apply f (map java->clojure arguments)))
                       (catch Exception ex
                         (throw (new FunctionException ex))))))]
-    (.add @functions handler name (make-aliases-array aliases))
+    (.add @functions handler name (make-aliased-array aliases))
     (.retrieve @functions name)))
 
 (defmacro deftwigfn
