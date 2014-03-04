@@ -39,6 +39,31 @@
 
       (reset-functions!)))
 
+  (testing "Custom template function aliases"
+    (do
+      (reset-functions!)
+
+      (is (valid-function-handler?
+            (defaliasedtwigfn "add" [a b]
+              ["plus" "myAddFn"]
+              (+ a b))))
+
+      (is (true? (function-exists? "add")))
+      (is (true? (function-exists? "plus")))
+      (is (true? (function-exists? "myAddFn")))
+
+      (is (= (render "{{add(1, 2)}}" nil)
+             "3")
+          "calling a custom function by name")
+      (is (= (render "{{plus(1, 2)}}" nil)
+             "3")
+          "calling a custom function by alias")
+      (is (= (render "{{myAddFn(1, 2)}}" nil)
+             "3")
+          "calling a custom function by another alias")
+
+      (reset-functions!)))
+
   (testing "Fixed and variable number of template function arguments"
     (do
       (reset-functions!)
