@@ -46,8 +46,11 @@
 
   java.lang.Object
   (to-clojure [x]
-    (-> x
-        (bean)    ; TODO: this is definitely not the fastest method ...
+    x
+    ; on second thought, it's probably almost always a better idea to pass the unaltered object to the function
+    ; and let the actual function itself decide if it wants the object as a map or not...
+    #_(-> x
+        (bean)
         (dissoc :class)))
 
   nil
