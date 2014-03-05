@@ -11,7 +11,7 @@
 ; :aliases, which should be a vector of strings containing one or more possible aliases for this function.
 
 (defonce standard-functions
-  {"blankIfNull"
+  {"blank_if_null"
    {:fn (fn [x]
           (if (nil? x) "" x))
     :aliases ["nonull"]}
@@ -91,14 +91,16 @@
    {:fn (fn [sequence]
           (sort < sequence))}
 
-   "sortDescending"
+   "sort_descending"
    {:fn (fn [sequence]
-          (sort > sequence))}
+          (sort > sequence))
+    :aliases ["sort_desc"]}
 
-   "sortBy"
+   "sort_by"
    {:fn (fn [coll k]
           (sort-by #(get % k) coll))}
 
-   "sortDescendingBy"
+   "sort_descending_by"
    {:fn (fn [coll k]
-          (sort-by #(get % k) #(compare %2 %1) coll))}})
+          (sort-by #(get % k) #(compare %2 %1) coll))
+    :aliases ["sort_desc_by"]}})

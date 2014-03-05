@@ -254,7 +254,7 @@
 
 (deftest standard-functions
   (testing "Standard functions were added properly"
-    (is (true? (function-exists? "blankIfNull")))
+    (is (true? (function-exists? "blank_if_null")))
     (is (true? (function-exists? "butlast")))
     (is (true? (function-exists? "dump")))
     (is (true? (function-exists? "nth")))
@@ -265,16 +265,16 @@
     (is (true? (function-exists? "rest")))
     (is (true? (function-exists? "second")))
     (is (true? (function-exists? "sort")))
-    (is (true? (function-exists? "sortDescending")))
-    (is (true? (function-exists? "sortBy")))
-    (is (true? (function-exists? "sortDescendingBy"))))
+    (is (true? (function-exists? "sort_descending")))
+    (is (true? (function-exists? "sort_by")))
+    (is (true? (function-exists? "sort_descending_by"))))
 
-  (testing "blankIfNull"
-    (is (= (render "{{ a|blankIfNull }}" nil)
+  (testing "blank_if_null"
+    (is (= (render "{{ a|blank_if_null }}" nil)
            ""))
-    (is (= (render "{{ a|blankIfNull }}" {:a nil})
+    (is (= (render "{{ a|blank_if_null }}" {:a nil})
            ""))
-    (is (= (render "{{ a|blankIfNull }}" {:a "foo"})
+    (is (= (render "{{ a|blank_if_null }}" {:a "foo"})
            "foo"))
     (is (= (render "{{ a|nonull }}" nil)
            "")))
@@ -333,14 +333,14 @@
     (is (= (render "{{ [2, 1, 5, 3, 4]|sort }}" nil)
            "[1, 2, 3, 4, 5]")))
 
-  (testing "sortDescending"
-    (is (= (render "{{ [2, 1, 5, 3, 4]|sortDescending }}" nil)
+  (testing "sort_descending"
+    (is (= (render "{{ [2, 1, 5, 3, 4]|sort_descending }}" nil)
            "[5, 4, 3, 2, 1]")))
 
-  (testing "sortBy"
-    (is (= (render "{{ [{a: 2}, {a: 1}, {a: 5}, {a: 3}, {a: 4}]|sortBy(\"a\") }}" nil)
+  (testing "sort_by"
+    (is (= (render "{{ [{a: 2}, {a: 1}, {a: 5}, {a: 3}, {a: 4}]|sort_by(\"a\") }}" nil)
            "[{a=1}, {a=2}, {a=3}, {a=4}, {a=5}]")))
 
-  (testing "sortDescendingBy"
-    (is (= (render "{{ [{a: 2}, {a: 1}, {a: 5}, {a: 3}, {a: 4}]|sortDescendingBy(\"a\") }}" nil)
+  (testing "sort_descending_by"
+    (is (= (render "{{ [{a: 2}, {a: 1}, {a: 5}, {a: 3}, {a: 4}]|sort_descending_by(\"a\") }}" nil)
            "[{a=5}, {a=4}, {a=3}, {a=2}, {a=1}]"))))
