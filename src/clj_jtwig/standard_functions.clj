@@ -28,6 +28,11 @@
           (with-out-str
             (clojure.pprint/pprint x)))}
 
+   "dump_table"
+   {:fn (fn [x]
+          (with-out-str
+            (clojure.pprint/print-table x)))}
+
    "nth"
    {:fn (fn [sequence index & optional-not-found]
           (let [values (if (map? sequence)    ; map instance check to match behaviour of jtwig's first/last implementation
