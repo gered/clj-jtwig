@@ -257,6 +257,7 @@
     (is (true? (function-exists? "blank_if_null")))
     (is (true? (function-exists? "butlast")))
     (is (true? (function-exists? "dump")))
+    (is (true? (function-exists? "dump_table")))
     (is (true? (function-exists? "nth")))
     (is (true? (function-exists? "max")))
     (is (true? (function-exists? "min")))
@@ -286,6 +287,10 @@
   (testing "dump"
     (is (= (render "{{ a|dump }}" {:a [{:foo "bar"} [1, 2, 3] "hello"]})
            "({\"foo\" \"bar\"} (1 2 3) \"hello\")\n")))
+
+  (testing "dump_table"
+    (is (= (render "{{ t|dump_table }}", {:t [{:a 1 :b 2 :c 3} {:b 5 :a 7 :c "dog"}]})
+           "\n| b |   c | a |\n|---+-----+---|\n| 2 |   3 | 1 |\n| 5 | dog | 7 |\n")))
 
   (testing "nth"
     (is (= (render "{{ [1, 2, 3, 4, 5]|nth(2) }}" nil)
