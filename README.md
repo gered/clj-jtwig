@@ -63,6 +63,23 @@ to it using 'dot' syntax like in Java.
 City of residence: {{address.city}}
 ```
 
+If a variable's name has any special characters (such as a `-` character), you can access it using 'subscript' syntax
+instead.
+
+```jinja
+Customer name: {{customer['full-name'}}
+```
+
+If a "root" variable has special characters in it's name, you can also access it using the same syntax, but you will
+need to access it off of the `model` variable which all variables set in the template are bound to.
+
+```jinja
+Order number: {{model['customer-order'].orderNumber}}
+```
+
+Otherwise, you normally don't need to include `model`, it is implicit.
+
+
 ### Web Apps
 
 For web apps built on Compojure, you can do something like:
@@ -221,6 +238,15 @@ template who's filename is passed to one of the render functions is checked to s
 templates include other template files but those included files are never directly rendered themselves, then they will
 not get recompiled and cached unless the parent template is updated as well. This can be a problem during development
 of an application, so you may want to turn caching off during development.
+
+## Debugging Tips
+
+One other helpful use of `model` is for debugging when working with a lot of data being passed to a template. You can
+dump the entire set of variables passed to the template using the `dump` function.
+
+```jinja
+{{model|dump}}
+```
 
 ## License
 
