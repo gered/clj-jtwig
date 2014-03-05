@@ -10,6 +10,8 @@ available in clj-jtwig.
 
 ## Usage
 
+**WARNING: This library is still in early development. May not be ready for production use!**
+
 ### Leiningen
 
 ```clojure
@@ -19,8 +21,8 @@ available in clj-jtwig.
 #### Java 6
 
 Jtwig targets Java 7 so you can't use it on Java 6. If you are deploying applications into a Java 6 environment and
-want to still use clj-jtwig, you can use the java6 version (maintained in
-[this branch](https://github.com/gered/clj-jtwig/tree/java6)). This makes use of an otherwise vanilla Jtwig library
+want to still use clj-jtwig, you can use the version maintained in
+[this branch](https://github.com/gered/clj-jtwig/tree/java6). It makes use of an otherwise vanilla Jtwig library
 that has been very slightly modified so that it compiles for Java 6. No other changes have been made and this fork is
 only being maintained by me *purely* for use with clj-jtwig. *It is not supported by the Jtwig developers.*
 
@@ -79,18 +81,18 @@ For web apps built on Compojure, you can do something like:
       (response
         (render-resource
           template-filename
-          ; add a var 'context' which contains the current servlet context path which you will want to prefix
-          ; on to your css/js/img and other links that you render in your html
+          ; add a var 'context' which contains the current servlet context path which you will
+          ; want to prefix on to your css/js/img and other links that you render in your html
           (assoc params :context (or (:context request) ""))))
       "text/html; charset=utf-8")))
 
-; params is an optional map that will get passed to clj-jtwig.core/render-resource. this is will need to contain
-; any variables you want to use in 'template-filename'
+; params is an optional map that will get passed to clj-jtwig.core/render-resource. this is will
+; need to contain any variables you want to use in 'template-filename'
 (defn render [template-filename & [params]]
   (JtwigRenderable. template params))
 ```
 
-And then in your route:
+And then in your routes:
 
 ```clojure
 (ns yourwebapp.routes
@@ -99,7 +101,7 @@ And then in your route:
 
 (defn home-page []
   ; in this case, 'home.html' would be located at '[yourwebapp]/resources/views/home.html'
-  (layout/render "views/home.html" {:name "Gered"}))
+  (render "views/home.html" {:name "Gered"}))
 
 (defroutes yourwebapp-routes
   (GET "/" [] (home-page)))
@@ -202,6 +204,23 @@ A number of functions are provided out of the box by Jtwig. A few more are provi
 | trim | Strips whitespace (or other characters) from the beginning and end of a string.
 | upper | Converts a value to uppercase.
 | url_encode | Percent encodes a given string as URL segment or an array as query string.
+
+## Caching
+
+Jtwig provides support for compiling templates so that subsequent renders can be performed faster. clj-jtwig builds on
+this support by providing a very simple caching mechanism when rendering templates from files. Template files are
+compiled the first time they are rendered and then the compiled result cached. From then on, each time that same
+template file is rendered, the source file on disk is checked to see if it has been modified since it was last cached,
+and if so we re-load, compile and cache it before rendering it again.
+
+Caching is turned on by default, but can be turned off if necessary via
+`clj-jtwig.core/toggle-compiled-template-caching!`.
+
+An important thing to be aware of when using templates that extend others, or include others is that only the
+template who's filename is passed to one of the render functions is checked to see if it has been updated. If your
+templates include other template files but those included files are never directly rendered themselves, then they will
+not get recompiled and cached unless the parent template is updated as well. This can be a problem during development
+of an application, so you may want to turn caching off during development.
 
 ## License
 
