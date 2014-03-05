@@ -17,6 +17,7 @@ available in clj-jtwig.
 ```clojure
 [clj-jtwig "0.2.1"]
 ```
+!["clj-jtwig version"](https://clojars.org/clj-jtwig/latest-version.svg)
 
 #### Java 6
 
