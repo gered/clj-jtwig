@@ -52,7 +52,7 @@
            (java->clojure (new java.util.HashMap {:a 1 :b 2 :c 3 :d 4 :e 5 :f {:foo "foo" "bar" nil :baz {:lol "hello"}}})))
         "nested HashMap")
 
-    (is (= {:seconds 45, :date 2, :minutes 15, :hours 9, :year 114, :timezoneOffset 300, :month 2, :day 0, :time 1393769745745}
+    (is (= (new java.util.Date 1393769745745)
            (java->clojure (new java.util.Date 1393769745745)))
         "Object")
 
@@ -109,6 +109,10 @@
     (is (= (new java.util.HashMap {:a 1 :b 2 :c 3 :d 4 :e 5 :f (new java.util.HashMap {:foo "foo" "bar" nil :baz (new java.util.HashMap {:lol "hello"})})})
            (clojure->java {:a 1 :b 2 :c 3 :d 4 :e 5 :f {:foo "foo" "bar" nil :baz {:lol "hello"}}}))
         "nested map contents")
+
+    (is (= (new java.util.Date 1393769745745)
+           (clojure->java (new java.util.Date 1393769745745)))
+        "object")
 
     (is (= nil
            (clojure->java nil))
