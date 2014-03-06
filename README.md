@@ -174,49 +174,50 @@ A number of functions are provided out of the box by Jtwig. A few more are provi
 
 | Function | Description
 |----------|------------
-| [abs](http://jtwig.org/documentation/functions#item_7) | Returns the absolute value of a number.
-| [batch](http://jtwig.org/documentation/functions#item_8) | "Batches" items by returning a list of lists with the given number of items. If you provide a second parameter, it is used to fill missing items.
-| blankIfNull | If the value given is null, returns a blank string instead of "null".
-| [capitalize](http://jtwig.org/documentation/functions#item_9) | Capitalizes a value. The first character will be uppercase, all others lowercase.
-| concat | Concatenates any number of values together as strings.
-| [convert_encoding](http://jtwig.org/documentation/functions#item_10) | Converts a string from one encoding to another. The first argument is the expected output charset and the second one is the input charset.
-| [date_format](http://jtwig.org/documentation/functions#item_11) | Formats a date to a given format. The format specifier is the same as supported by `SimpleDateFormat`.
-| [date_modify](http://jtwig.org/documentation/functions#item_13) | Modifies a date with a given modifier string. Can be 'seconds', 'minutes', 'hours', 'days', 'months' or 'years'.
-| [default](http://jtwig.org/documentation/functions#item_14) | Returns the passed default value if the value is undefined or empty, otherwise the value of the variable.
-| dump | Uses `clojure.pprint/pprint` to dump the entire value of a variable to a string and returns that string.
-| [escape](http://jtwig.org/documentation/functions#item_15) | Escapes a string for safe insertion into the final output. The second parameter specifies the escape strategy: 'html' (default), 'js' or 'xml'.
-| [first](http://jtwig.org/documentation/functions#item_16) | Returns the first "element" of a sequence, or a string.
-| [format](http://jtwig.org/documentation/functions#item_17) | Formats a given string by replacing the placeholders (placeholders follow the `String.format` notation).
-| [join](http://jtwig.org/documentation/functions#item_18) | Returns a string which is the concatenation of the items of a sequence. The second parameter specifies a string to place between joined elements (blank string by default).
-| [json_encode](http://jtwig.org/documentation/functions#item_19) | Returns the JSON representation of the given value.
-| [keys](http://jtwig.org/documentation/functions#item_20) | Returns the keys of a map. It is useful when you want to iterate over the keys of a map.
-| [last](http://jtwig.org/documentation/functions#item_21) | Returns the last "element" of a sequence, or a string.
-| [length](http://jtwig.org/documentation/functions#item_22) | Returns the number of items of a sequence or mapping, or the length of a string.
-| [lower](http://jtwig.org/documentation/functions#item_23) | Converts a value to lowercase.
-| max | Returns the biggest value of a sequence or a set of values.
-| [merge](http://jtwig.org/documentation/functions#item_26) | Merges a list with another list.
-| min | Returns the lowest value of a sequence or a set of values.
-| [nl2br](http://jtwig.org/documentation/functions#item_24) | Inserts HTML line breaks before all newlines in a string
-| nth | Returns a value from a list corresponding with the index specified.
-| [number_format](http://jtwig.org/documentation/functions#item_25) | Formats numbers. You can control the number of decimal places, decimal point, and thousands separator using the arguments.
-| random | Returns a random item from a list or set of values. If an single number argument is provided, returns a random number from 0 to the number specified.
-| range | Returns a list containing an arithmetic progression of integers. An optional third argument specifies the 'step' which by default is 1.
-| [replace](http://jtwig.org/documentation/functions#item_27) | Formats a given string by replacing the placeholders (placeholders are free-form).
-| rest | Returns all the items from a list except for the first one.
-| [reverse](http://jtwig.org/documentation/functions#item_28) | Reverses a sequence, or a string.
-| [round](http://jtwig.org/documentation/functions#item_29) | Rounds a number to a given precision.
-| second | Returns the second item of a sequence.
-| slice | Extracts a slice of a sequence, or a string where the 2 last arguments specify the start and end indices respectively.
-| sort | Sorts a list in ascending order.
-| sortDescending | Sorts a list in descending order.
-| sortBy | Sorts a list of maps in ascending order. The second argument specifies the key who's value is to be used for sorting comparisons.
-| sortDescendingBy |Sorts a list of maps in descending order. The second argument specifies the key who's value is to be used for sorting comparisons.
-| split | Splits a string by the given delimiter and returns a list of strings.
-| striptags | Strips HTML/XML tags and replaces adjacent whitespace with one space.
-| title | Returns a titlecased version of the value. Words will start with uppercase letters, all remaining characters are lowercase.
-| trim | Strips whitespace (or other characters) from the beginning and end of a string.
-| upper | Converts a value to uppercase.
-| url_encode | Percent encodes a given string as URL segment or an array as query string.
+| abs | `abs(number)`<br/>Returns the absolute value of a number.
+| batch | `batch(items, batch_size, filler_item)`<br/>"Batches" items by returning a list of lists with the given number of items. If you provide a second parameter, it is used to fill missing items.
+| blank_if_null | `blank_if_null(value)`<br/>If the value given is null, returns a blank string instead of "null".
+| butlast | `butlast(collection)`<br/>Returns all items from a list except for the last one.
+| capitalize | `capitalize(value)`<br/>Capitalizes a value. The first character will be uppercase, all others lowercase.
+| concat | `concat(values, ...)`<br/>Concatenates any number of values together as strings.
+| convert_encoding | `convert_encoding(string, output_charset, input_charset)`<br/>Converts a string from one encoding to another. The first argument is the expected output charset and the second one is the input charset.
+| date_format | `date_format(date, format, timezone)`<br/>Formats a date to a given format. The format specifier is the same as supported by `SimpleDateFormat`.
+| date_modify | `date_modify(date, modifier)`<br/>Modifies a date with a given modifier string. Can be 'seconds', 'minutes', 'hours', 'days', 'months' or 'years'.
+| default | `default(value, default_value)`<br/>Returns the passed default value if the value is undefined or empty, otherwise the value of the variable.
+| dump | `dump(value)`<br/>Uses `clojure.pprint/pprint` to dump the entire value of a variable to a string and returns that string.
+| escape | `escape(value, strategy)`<br/>Escapes a string for safe insertion into the final output. The second parameter specifies the escape strategy: 'html' (default), 'js' or 'xml'.
+| first | `first(collection)`<br/>Returns the first "element" of a sequence, or a string.
+| format | `format(format_string, values, ...)`<br/>Formats a given string by replacing the placeholders (placeholders follow the `String.format` notation).
+| join | `join(sequence, separator)`<br/>Returns a string which is the concatenation of the items of a sequence. The second parameter specifies a string to place between joined elements (blank string by default).
+| json_encode | `json_encode(value)`<br/>Returns the JSON representation of the given value.
+| keys | `keys(map)`<br/>Returns the keys of a map. It is useful when you want to iterate over the keys of a map.
+| last | `last(collection)`<br/>Returns the last "element" of a sequence, or a string.
+| length | `length(collection)`<br/>Returns the number of items of a sequence or mapping, or the length of a string.
+| lower | `lower(string)`<br/>Converts a value to lowercase.
+| max | `max(values, ...)`<br/>Returns the biggest value of a sequence or a set of values.
+| merge | `merge(first_collection, second_collection)`<br/>Merges a list with another list.
+| min | `min(values, ...)`<br/>Returns the lowest value of a sequence or a set of values.
+| nl2br | `nl2br(string)`<br/>Inserts HTML line breaks before all newlines in a string
+| nth | `nth(sequence, index, value_if_not_found)`<br/>Returns a value from a list corresponding with the index specified.
+| number_format | `number_format(number, num_decimals, decimal_point_char, thousand_sep_char)`<br/>Formats numbers. You can control the number of decimal places, decimal point, and thousands separator using the arguments.
+| random | `random(collection)`<br/>Returns a random item from a list or set of values. If an single number argument is provided, returns a random number from 0 to the number specified.
+| range | `range(low, high, step)`<br/>Returns a list containing an arithmetic progression of integers. An optional third argument specifies the 'step' which by default is 1.
+| replace | `replace(string, placeholder_and_replacements_map)`<br/>Formats a given string by replacing the placeholders (placeholders are free-form).
+| rest | `rest(collection)`<br/>Returns all the items from a list except for the first one.
+| reverse | `reverse(sequence)`<br/>Reverses a sequence, or a string.
+| round | `round(number, rounding_method)`<br/>Rounds a number to a given precision.
+| second | `second(collection)`<br/>Returns the second item of a sequence.
+| slice | `slice(sequence, start, length)`<br/>Extracts a slice of a sequence, or a string where the 2 last arguments specify the start and end indices respectively.
+| sort | `sort(sequence)`<br/>Sorts a list in ascending order.
+| sort_descending | `sort_descending(sequence)`<br/>Sorts a list in descending order.
+| sort_by | `sort_by(sequence_of_maps, sort_key)`<br/>Sorts a list of maps in ascending order. The second argument specifies the key who's value is to be used for sorting comparisons.
+| sort_descending_by | `sort_descending_by(sequence_of_maps, sort_key)`<br/>Sorts a list of maps in descending order. The second argument specifies the key who's value is to be used for sorting comparisons.
+| split | `split(string, delimiter)`<br/>Splits a string by the given delimiter and returns a list of strings.
+| striptags | `striptags(string)`<br/>Strips HTML/XML tags and replaces adjacent whitespace with one space.
+| title | `title(string)`<br/>Returns a titlecased version of the value. Words will start with uppercase letters, all remaining characters are lowercase.
+| trim | `trim(string)`<br/>Strips whitespace (or other characters) from the beginning and end of a string.
+| upper | `upper(string)`<br/>Converts a value to uppercase.
+| url_encode | `url_encode(string_or_map)`<br/>Percent encodes a given string as URL segment or a map of key/values as a query string.
 
 ## Caching
 
