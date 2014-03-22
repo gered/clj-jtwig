@@ -4,4 +4,4 @@
   :license {:name "Apache License, Version 2.0"
             :url "http://www.apache.org/licenses/LICENSE-2.0"}
   :dependencies [[org.clojure/clojure "1.5.1"]
-                 [com.lyncode/jtwig-core-java6 "2.1.1"]])
+                 [com.lyncode/jtwig-core "2.1.2"]])
