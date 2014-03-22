@@ -5,7 +5,8 @@
            (java.io File FileNotFoundException ByteArrayOutputStream)
            (java.net URL))
   (:require [clojure.walk :refer [stringify-keys]])
-  (:use [clj-jtwig.functions]))
+  (:use [clj-jtwig.functions]
+        [clj-jtwig.utils]))
 
 ; global options
 (defonce options (atom {; true/false to enable/disable compiled template caching when using templates from
@@ -58,17 +59,6 @@
   (->> file
        (new JtwigTemplate)
        (.compile)))
-
-(defn- inside-jar? [^File file]
-  (-> file
-      (.getPath)
-      ; the path of a file inside a jar looks something like "jar:file:/path/to/file.jar!/path/to/file"
-      (.contains "jar!")))
-
-(defn- get-file-last-modified [^File file]
-  (if (inside-jar? file)
-    0
-    (.lastModified file)))
 
 (defn- newer? [^File file other-timestamp]
   (let [file-last-modified (get-file-last-modified file)]
@@ -128,12 +118,6 @@
    re-adding to the cache."
   []
   (reset! compiled-templates {}))
-
-(defn- get-resource-path
-  (^URL [^String filename]
-   (-> (Thread/currentThread)
-       (.getContextClassLoader)
-       (.getResource filename))))
 
 (defn- make-model-map [model-map-values {:keys [skip-model-map-stringify?] :as options}]
   (let [model-map-obj (new JtwigModelMap)
