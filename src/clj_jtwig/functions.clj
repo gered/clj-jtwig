@@ -4,7 +4,8 @@
            (com.lyncode.jtwig.functions.repository DefaultFunctionRepository)
            (com.lyncode.jtwig.functions.exceptions FunctionNotFoundException FunctionException))
   (:require [clj-jtwig.convert :refer [java->clojure clojure->java]])
-  (:use [clj-jtwig.standard-functions]))
+  (:use [clj-jtwig.standard-functions]
+        [clj-jtwig.web.web-functions]))
 
 (defn- make-function-handler [f]
   (reify JtwigFunction
@@ -21,15 +22,18 @@
       (aset array index (nth aliases index)))
     array))
 
+(defn- add-function-library! [repository functions]
+  (doseq [[name {:keys [aliases fn]}] functions]
+    (.add repository
+          (make-function-handler fn)
+          name
+          (make-aliased-array aliases)))
+  repository)
+
 (defn- create-function-repository []
-  (let [repository (new DefaultFunctionRepository (make-array JtwigFunction 0))]
-    ; always add our standard functions to new repository objects
-    (doseq [[name {:keys [aliases fn]}] standard-functions]
-      (.add repository
-            (make-function-handler fn)
-            name
-            (make-aliased-array aliases)))
-    repository))
+  (doto (new DefaultFunctionRepository (make-array JtwigFunction 0))
+    (add-function-library! standard-functions)
+    (add-function-library! web-functions)))
 
 ; we'll be reusing the same function repository object for all contexts created when rendering templates.
 ; any custom functions added will be added to this instance
