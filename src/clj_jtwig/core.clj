@@ -73,7 +73,7 @@
 ; this function really only exists so i can easily change the exception type / message in the future
 ; since this file-exists check is needed in a few places
 (defn- err-if-no-file [^File file]
-  (if-not (.exists file)
+  (if-not (exists? file)
     (throw (new FileNotFoundException (str "Template file \"" file "\" not found.")))))
 
 (defn- cache-compiled-template! [^File file create-fn]

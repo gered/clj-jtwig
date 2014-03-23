@@ -9,6 +9,12 @@
       ; the path of a file inside a jar looks something like "jar:file:/path/to/file.jar!/path/inside/jar/to/file"
       (.contains "jar!")))
 
+(defn exists? [^File file]
+  (if (inside-jar? file)
+    ;; TODO: can't use File.exists() for this
+    true
+    (.exists file)))
+
 (defn get-file-last-modified [^File file]
   (if (inside-jar? file)
     0
