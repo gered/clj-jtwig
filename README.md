@@ -178,7 +178,6 @@ A number of functions are provided out of the box by Jtwig. A few more are provi
 | blank_if_null | `blank_if_null(value)`<br/>If the value given is null, returns a blank string instead of "null".
 | butlast | `butlast(collection)`<br/>`butlast(string)`<br/>`butlast(values, ...)`<br/>Returns all items except for the last one from a collection, series of values, or a string. If a string is passed, it will be treated as a collection of chars.
 | capitalize | `capitalize(string)`<br/>Capitalizes a value. The first character will be uppercase, all others lowercase.
-| capitalize_all | `capitalize_all(string)`<br/>Capitalizes all words (separate by whitespace) in a string. The first character in each word will be uppercase.
 | center | `center(string, max_width)`<br/>`center(string, max_width, padding_string)`<br/>Pads a string with whitespace on the left and right as necessary to 'center' the given value. If the padding_string argument is provided, that string will be used to pad instead of whitespace.
 | concat | `concat(values, ...)`<br/>Concatenates any number of values together as strings.
 | convert_encoding | `convert_encoding(string, output_charset, input_charset)`<br/>Converts a string from one encoding to another. The first argument is the expected output charset and the second one is the input charset.
