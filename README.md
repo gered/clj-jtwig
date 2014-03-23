@@ -179,6 +179,8 @@ A number of functions are provided out of the box by Jtwig. A few more are provi
 | blank_if_null | `blank_if_null(value)`<br/>If the value given is null, returns a blank string instead of "null".
 | butlast | `butlast(collection)`<br/>Returns all items from a list except for the last one.
 | capitalize | `capitalize(value)`<br/>Capitalizes a value. The first character will be uppercase, all others lowercase.
+| capitalize_all | `capitalize_all(value)`<br/>Capitalizes all words (separate by whitespace) in a string. The first character in each word will be uppercase.
+| center | `center(value, max_width)`<br/>Pads a string with whitespace on the left and right as necessary to 'center' the given value.
 | concat | `concat(values, ...)`<br/>Concatenates any number of values together as strings.
 | convert_encoding | `convert_encoding(string, output_charset, input_charset)`<br/>Converts a string from one encoding to another. The first argument is the expected output charset and the second one is the input charset.
 | date_format | `date_format(date, format, timezone)`<br/>Formats a date to a given format. The format specifier is the same as supported by `SimpleDateFormat`.
@@ -188,6 +190,7 @@ A number of functions are provided out of the box by Jtwig. A few more are provi
 | escape | `escape(value, strategy)`<br/>Escapes a string for safe insertion into the final output. The second parameter specifies the escape strategy: 'html' (default), 'js' or 'xml'.
 | first | `first(collection)`<br/>Returns the first "element" of a sequence, or a string.
 | format | `format(format_string, values, ...)`<br/>Formats a given string by replacing the placeholders (placeholders follow the `String.format` notation).
+| javascript | `javascript(url)`<br/>Returns a `<script>` tag for a Javascript source file. The Javascript source file's modification timestamp will be appended to the URL if the url given is a relative one to help avoid browser caching issues.
 | join | `join(sequence, separator)`<br/>Returns a string which is the concatenation of the items of a sequence. The second parameter specifies a string to place between joined elements (blank string by default).
 | json_encode | `json_encode(value)`<br/>Returns the JSON representation of the given value.
 | keys | `keys(map)`<br/>Returns the keys of a map. It is useful when you want to iterate over the keys of a map.
@@ -198,10 +201,15 @@ A number of functions are provided out of the box by Jtwig. A few more are provi
 | merge | `merge(first_collection, second_collection)`<br/>Merges a list with another list.
 | min | `min(values, ...)`<br/>Returns the lowest value of a sequence or a set of values.
 | nl2br | `nl2br(string)`<br/>Inserts HTML line breaks before all newlines in a string
+| normalize_space | `normalize_space(string)`<br/>Trims leading and trailing whitespace and replaces all remaining whitespace with a single space.
 | nth | `nth(sequence, index, value_if_not_found)`<br/>Returns a value from a list corresponding with the index specified.
 | number_format | `number_format(number, num_decimals, decimal_point_char, thousand_sep_char)`<br/>Formats numbers. You can control the number of decimal places, decimal point, and thousands separator using the arguments.
+| path | `path(url)`<br/>Returns a path with the current servlet context prepended. Requires the use of the `clj-jtwig.web.middleware/wrap-servlet-context-path` Ring middleware to work properly.
+| pad_left | `pad_left(string, max_width)`<br/>Pads a string with leading whitespace as necessary until the string and whitespace combined are max_width characters in length.
+| pad_right | `pad_right(string, max_width)`<br/>Pads a string with trailing whitespace as necessary until the string and whitespace combined are max_width characters in length.
 | random | `random(collection)`<br/>Returns a random item from a list or set of values. If an single number argument is provided, returns a random number from 0 to the number specified.
 | range | `range(low, high, step)`<br/>Returns a list containing an arithmetic progression of integers. An optional third argument specifies the 'step' which by default is 1.
+| repeat | `repeat(string, count)`<br/>Returns a string with the given string repeated count times.
 | replace | `replace(string, placeholder_and_replacements_map)`<br/>Formats a given string by replacing the placeholders (placeholders are free-form).
 | rest | `rest(collection)`<br/>Returns all the items from a list except for the first one.
 | reverse | `reverse(sequence)`<br/>Reverses a sequence, or a string.
@@ -214,10 +222,12 @@ A number of functions are provided out of the box by Jtwig. A few more are provi
 | sort_descending_by | `sort_descending_by(sequence_of_maps, sort_key)`<br/>Sorts a list of maps in descending order. The second argument specifies the key who's value is to be used for sorting comparisons.
 | split | `split(string, delimiter)`<br/>Splits a string by the given delimiter and returns a list of strings.
 | striptags | `striptags(string)`<br/>Strips HTML/XML tags and replaces adjacent whitespace with one space.
+| stylesheet | `stylesheet(url, media)`<br/>Returns a `<link>` tag for a CSS stylesheet with an optional 'media' attribute value. The CSS file's modification timestamp will be appended to the URL if the url given is a relative one to help avoid browser caching issues.
 | title | `title(string)`<br/>Returns a titlecased version of the value. Words will start with uppercase letters, all remaining characters are lowercase.
 | trim | `trim(string)`<br/>Strips whitespace (or other characters) from the beginning and end of a string.
 | upper | `upper(string)`<br/>Converts a value to uppercase.
 | url_encode | `url_encode(string_or_map)`<br/>Percent encodes a given string as URL segment or a map of key/values as a query string.
+| wrap | `wrap(string, max_width, wrap_long_words, new_line_string)`<br/>Wraps the given text to the maximum width specified. If wrap_long_words is true, then long words/text such as URLs will also be cut and wrapped as necessary. new_line_string can be specified to use a different character/string as the new line separator.
 
 ## Caching
 
