@@ -29,6 +29,10 @@
    {:fn (fn [s]
           (WordUtils/capitalize s))}
 
+   "center"
+   {:fn (fn [s size & [padding-string]]
+          (StringUtils/center s size (or padding-string " ")))}
+
    "dump"
    {:fn (fn [x]
           (with-out-str

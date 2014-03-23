@@ -288,6 +288,14 @@
     (is (= (render "{{ capitalize_all('hello world') }}" nil)
            "Hello World")))
 
+  (testing "center"
+    (is (= (render "{{ center('bat', 5) }}" nil)
+           " bat "))
+    (is (= (render "{{ center('bat', 3) }}" nil)
+           "bat"))
+    (is (= (render "{{ center('bat', 5, 'x') }}" nil)
+           "xbatx")))
+
   (testing "dump"
     (is (= (render "{{ a|dump }}" {:a [{:foo "bar"} [1, 2, 3] "hello"]})
            "({\"foo\" \"bar\"} (1 2 3) \"hello\")\n")))
