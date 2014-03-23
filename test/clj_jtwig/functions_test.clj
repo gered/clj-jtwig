@@ -318,6 +318,14 @@
     (is (= (render "{{ min(2, 1, 5, 3, 4) }}" nil)
            "1")))
 
+  (testing "pad_left"
+    (is (= (render "{{ pad_left('bat', 5) }}" nil)
+           "  bat"))
+    (is (= (render "{{ pad_left('bat', 3) }}" nil)
+           "bat"))
+    (is (= (render "{{ pad_left('bat', 5, 'x') }}" nil)
+           "xxbat")))
+
   (testing "random"
     (is (some #{(render "{{ ['apple', 'orange', 'citrus']|random }}" nil)}
               ["apple" "orange" "citrus"]))
