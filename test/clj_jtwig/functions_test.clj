@@ -304,16 +304,6 @@
     (is (= (render "{{ t|dump_table }}", {:t [{:a 1 :b 2 :c 3} {:b 5 :a 7 :c "dog"}]})
            "\n| b |   c | a |\n|---+-----+---|\n| 2 |   3 | 1 |\n| 5 | dog | 7 |\n")))
 
-  (testing "nth"
-    (is (= (render "{{ [1, 2, 3, 4, 5]|nth(2) }}" nil)
-           "3"))
-    (is (thrown-with-msg?
-          Exception
-          #"java.lang.IndexOutOfBoundsException"
-          (render "{{ [1, 2, 3, 4, 5]|nth(6) }}" nil)))
-    (is (= (render "{{ [1, 2, 3, 4, 5]|nth(6, \"not found\") }}" nil)
-           "not found")))
-
   (testing "max"
     (is (= (render "{{ [2, 1, 5, 3, 4]|max }}" nil)
            "5"))
@@ -329,6 +319,16 @@
   (testing "normalize_space"
     (is (= (render "{{ normalize_space('  hello  world  ') }}" nil)
            "hello world")))
+
+  (testing "nth"
+    (is (= (render "{{ [1, 2, 3, 4, 5]|nth(2) }}" nil)
+           "3"))
+    (is (thrown-with-msg?
+          Exception
+          #"java.lang.IndexOutOfBoundsException"
+          (render "{{ [1, 2, 3, 4, 5]|nth(6) }}" nil)))
+    (is (= (render "{{ [1, 2, 3, 4, 5]|nth(6, \"not found\") }}" nil)
+           "not found")))
 
   (testing "pad_left"
     (is (= (render "{{ pad_left('bat', 5) }}" nil)

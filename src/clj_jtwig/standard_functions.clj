@@ -43,15 +43,6 @@
           (with-out-str
             (clojure.pprint/print-table x)))}
 
-   "nth"
-   {:fn (fn [sequence index & optional-not-found]
-          (let [values (if (map? sequence)    ; map instance check to match behaviour of jtwig's first/last implementation
-                         (-> sequence vals)
-                         sequence)]
-            (if optional-not-found
-              (nth values index (first optional-not-found))
-              (nth values index))))}
-
    "max"
    {:fn (fn [& numbers]
           (if (coll? (first numbers))
@@ -67,6 +58,15 @@
    "normalize_space"
    {:fn (fn [s]
           (StringUtils/normalizeSpace s))}
+
+   "nth"
+   {:fn (fn [sequence index & optional-not-found]
+          (let [values (if (map? sequence)    ; map instance check to match behaviour of jtwig's first/last implementation
+                         (-> sequence vals)
+                         sequence)]
+            (if optional-not-found
+              (nth values index (first optional-not-found))
+              (nth values index))))}
 
    "pad_left"
    {:fn (fn [s size & [padding-string]]
