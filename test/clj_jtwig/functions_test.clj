@@ -330,6 +330,12 @@
     (is (= (render "{{ range(1, 5, 2) }}" nil)
            "[1, 3]")))
 
+  (testing "repeat"
+    (is (= (render "{{ repeat('x', 10) }}" nil)
+           "xxxxxxxxxx"))
+    (is (= (render "{{ repeat('x', 0) }}" nil)
+           "")))
+
   (testing "rest"
     (is (= (render "{{ [1, 2, 3, 4, 5]|rest }}" nil)
            "[2, 3, 4, 5]")))
