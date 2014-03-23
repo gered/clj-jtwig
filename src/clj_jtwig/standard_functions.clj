@@ -1,6 +1,7 @@
 (ns clj-jtwig.standard-functions
   "standard function definitions. these are functions that are not yet included in JTwig's standard function
    library and are just here to fill in the gaps for now."
+  (:import (org.apache.commons.lang3.text WordUtils))
   (:use [clojure.pprint]))
 
 ; we are using a separate map to hold the standard functions instead of using deftwigfn, etc. because doing it this
@@ -22,6 +23,10 @@
           (if (map? sequence)
             (-> sequence vals butlast)
             (butlast sequence)))}
+
+   "capitalize_all"
+   {:fn (fn [s]
+          (WordUtils/capitalize s))}
 
    "dump"
    {:fn (fn [x]

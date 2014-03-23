@@ -284,6 +284,10 @@
     (is (= (render "{{ [1, 2, 3, 4, 5]|butlast }}" nil)
            "[1, 2, 3, 4]")))
 
+  (testing "capitalize_all"
+    (is (= (render "{{ capitalize_all('hello world') }}" nil)
+           "Hello World")))
+
   (testing "dump"
     (is (= (render "{{ a|dump }}" {:a [{:foo "bar"} [1, 2, 3] "hello"]})
            "({\"foo\" \"bar\"} (1 2 3) \"hello\")\n")))
