@@ -25,10 +25,6 @@
             (-> sequence vals butlast)
             (butlast sequence)))}
 
-   "capitalize_all"
-   {:fn (fn [s]
-          (WordUtils/capitalize s))}
-
    "center"
    {:fn (fn [s size & [padding-string]]
           (StringUtils/center s size (or padding-string " ")))}
