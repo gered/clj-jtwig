@@ -352,4 +352,14 @@
 
   (testing "sort_descending_by"
     (is (= (render "{{ [{a: 2}, {a: 1}, {a: 5}, {a: 3}, {a: 4}]|sort_descending_by(\"a\") }}" nil)
-           "[{a=5}, {a=4}, {a=3}, {a=2}, {a=1}]"))))
+           "[{a=5}, {a=4}, {a=3}, {a=2}, {a=1}]")))
+
+  (testing "wrap"
+    (is (= (render "{{ wrap(\"Here is one line of text that is going to be wrapped after 20 columns.\", 20) }}" nil)
+           "Here is one line of\ntext that is going\nto be wrapped after\n20 columns."))
+    (is (= (render "{{ wrap(\"Here is one line of text that is going to be wrapped after 20 columns.\", 20, false, \"<br />\") }}" nil)
+           "Here is one line of<br />text that is going<br />to be wrapped after<br />20 columns."))
+    (is (= (render "{{ wrap(\"Click here to jump to the commons website - http://commons.apache.org\", 20, false) }}" nil)
+           "Click here to jump\nto the commons\nwebsite -\nhttp://commons.apache.org"))
+    (is (= (render "{{ wrap(\"Click here to jump to the commons website - http://commons.apache.org\", 20, true) }}" nil)
+           "Click here to jump\nto the commons\nwebsite -\nhttp://commons.apach\ne.org"))))

@@ -113,4 +113,14 @@
    "sort_descending_by"
    {:fn (fn [coll k]
           (sort-by #(get % k) #(compare %2 %1) coll))
-    :aliases ["sort_desc_by"]}})
+    :aliases ["sort_desc_by"]}
+
+   "wrap"
+   {:fn (fn [s length & [wrap-long-words? new-line-string]]
+          (WordUtils/wrap
+            s
+            length
+            new-line-string
+            (if (nil? wrap-long-words?)
+              false
+              wrap-long-words?)))}})
