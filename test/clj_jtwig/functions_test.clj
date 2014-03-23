@@ -326,6 +326,10 @@
     (is (= (render "{{ min(2, 1, 5, 3, 4) }}" nil)
            "1")))
 
+  (testing "normalize_space"
+    (is (= (render "{{ normalize_space('  hello  world  ') }}" nil)
+           "hello world")))
+
   (testing "pad_left"
     (is (= (render "{{ pad_left('bat', 5) }}" nil)
            "  bat"))

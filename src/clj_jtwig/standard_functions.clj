@@ -64,6 +64,10 @@
             (apply min (first numbers))
             (apply min numbers)))}
 
+   "normalize_space"
+   {:fn (fn [s]
+          (StringUtils/normalizeSpace s))}
+
    "pad_left"
    {:fn (fn [s size & [padding-string]]
           (StringUtils/leftPad s size (or padding-string " ")))}
