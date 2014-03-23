@@ -284,6 +284,18 @@
     (is (= (render "{{ [1, 2, 3, 4, 5]|butlast }}" nil)
            "[1, 2, 3, 4]")))
 
+  (testing "capitalize_all"
+    (is (= (render "{{ capitalize_all('hello world') }}" nil)
+           "Hello World")))
+
+  (testing "center"
+    (is (= (render "{{ center('bat', 5) }}" nil)
+           " bat "))
+    (is (= (render "{{ center('bat', 3) }}" nil)
+           "bat"))
+    (is (= (render "{{ center('bat', 5, 'x') }}" nil)
+           "xbatx")))
+
   (testing "dump"
     (is (= (render "{{ a|dump }}" {:a [{:foo "bar"} [1, 2, 3] "hello"]})
            "({\"foo\" \"bar\"} (1 2 3) \"hello\")\n")))
@@ -291,16 +303,6 @@
   (testing "dump_table"
     (is (= (render "{{ t|dump_table }}", {:t [{:a 1 :b 2 :c 3} {:b 5 :a 7 :c "dog"}]})
            "\n| b |   c | a |\n|---+-----+---|\n| 2 |   3 | 1 |\n| 5 | dog | 7 |\n")))
-
-  (testing "nth"
-    (is (= (render "{{ [1, 2, 3, 4, 5]|nth(2) }}" nil)
-           "3"))
-    (is (thrown-with-msg?
-          Exception
-          #"java.lang.IndexOutOfBoundsException"
-          (render "{{ [1, 2, 3, 4, 5]|nth(6) }}" nil)))
-    (is (= (render "{{ [1, 2, 3, 4, 5]|nth(6, \"not found\") }}" nil)
-           "not found")))
 
   (testing "max"
     (is (= (render "{{ [2, 1, 5, 3, 4]|max }}" nil)
@@ -314,6 +316,36 @@
     (is (= (render "{{ min(2, 1, 5, 3, 4) }}" nil)
            "1")))
 
+  (testing "normalize_space"
+    (is (= (render "{{ normalize_space('  hello  world  ') }}" nil)
+           "hello world")))
+
+  (testing "nth"
+    (is (= (render "{{ [1, 2, 3, 4, 5]|nth(2) }}" nil)
+           "3"))
+    (is (thrown-with-msg?
+          Exception
+          #"java.lang.IndexOutOfBoundsException"
+          (render "{{ [1, 2, 3, 4, 5]|nth(6) }}" nil)))
+    (is (= (render "{{ [1, 2, 3, 4, 5]|nth(6, \"not found\") }}" nil)
+           "not found")))
+
+  (testing "pad_left"
+    (is (= (render "{{ pad_left('bat', 5) }}" nil)
+           "  bat"))
+    (is (= (render "{{ pad_left('bat', 3) }}" nil)
+           "bat"))
+    (is (= (render "{{ pad_left('bat', 5, 'x') }}" nil)
+           "xxbat")))
+
+  (testing "pad_right"
+    (is (= (render "{{ pad_right('bat', 5) }}" nil)
+           "bat  "))
+    (is (= (render "{{ pad_right('bat', 3) }}" nil)
+           "bat"))
+    (is (= (render "{{ pad_right('bat', 5, 'x') }}" nil)
+           "batxx")))
+
   (testing "random"
     (is (some #{(render "{{ ['apple', 'orange', 'citrus']|random }}" nil)}
               ["apple" "orange" "citrus"]))
@@ -325,6 +357,12 @@
            "[1, 2, 3, 4]"))
     (is (= (render "{{ range(1, 5, 2) }}" nil)
            "[1, 3]")))
+
+  (testing "repeat"
+    (is (= (render "{{ repeat('x', 10) }}" nil)
+           "xxxxxxxxxx"))
+    (is (= (render "{{ repeat('x', 0) }}" nil)
+           "")))
 
   (testing "rest"
     (is (= (render "{{ [1, 2, 3, 4, 5]|rest }}" nil)
@@ -348,4 +386,14 @@
 
   (testing "sort_descending_by"
     (is (= (render "{{ [{a: 2}, {a: 1}, {a: 5}, {a: 3}, {a: 4}]|sort_descending_by(\"a\") }}" nil)
-           "[{a=5}, {a=4}, {a=3}, {a=2}, {a=1}]"))))
+           "[{a=5}, {a=4}, {a=3}, {a=2}, {a=1}]")))
+
+  (testing "wrap"
+    (is (= (render "{{ wrap(\"Here is one line of text that is going to be wrapped after 20 columns.\", 20) }}" nil)
+           "Here is one line of\ntext that is going\nto be wrapped after\n20 columns."))
+    (is (= (render "{{ wrap(\"Here is one line of text that is going to be wrapped after 20 columns.\", 20, false, \"<br />\") }}" nil)
+           "Here is one line of<br />text that is going<br />to be wrapped after<br />20 columns."))
+    (is (= (render "{{ wrap(\"Click here to jump to the commons website - http://commons.apache.org\", 20, false) }}" nil)
+           "Click here to jump\nto the commons\nwebsite -\nhttp://commons.apache.org"))
+    (is (= (render "{{ wrap(\"Click here to jump to the commons website - http://commons.apache.org\", 20, true) }}" nil)
+           "Click here to jump\nto the commons\nwebsite -\nhttp://commons.apach\ne.org"))))

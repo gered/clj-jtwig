@@ -1,6 +1,8 @@
 (ns clj-jtwig.standard-functions
   "standard function definitions. these are functions that are not yet included in JTwig's standard function
    library and are just here to fill in the gaps for now."
+  (:import (org.apache.commons.lang3.text WordUtils)
+           (org.apache.commons.lang3 StringUtils))
   (:use [clojure.pprint]))
 
 ; we are using a separate map to hold the standard functions instead of using deftwigfn, etc. because doing it this
@@ -23,6 +25,14 @@
             (-> sequence vals butlast)
             (butlast sequence)))}
 
+   "capitalize_all"
+   {:fn (fn [s]
+          (WordUtils/capitalize s))}
+
+   "center"
+   {:fn (fn [s size & [padding-string]]
+          (StringUtils/center s size (or padding-string " ")))}
+
    "dump"
    {:fn (fn [x]
           (with-out-str
@@ -32,15 +42,6 @@
    {:fn (fn [x]
           (with-out-str
             (clojure.pprint/print-table x)))}
-
-   "nth"
-   {:fn (fn [sequence index & optional-not-found]
-          (let [values (if (map? sequence)    ; map instance check to match behaviour of jtwig's first/last implementation
-                         (-> sequence vals)
-                         sequence)]
-            (if optional-not-found
-              (nth values index (first optional-not-found))
-              (nth values index))))}
 
    "max"
    {:fn (fn [& numbers]
@@ -53,6 +54,27 @@
           (if (coll? (first numbers))
             (apply min (first numbers))
             (apply min numbers)))}
+
+   "normalize_space"
+   {:fn (fn [s]
+          (StringUtils/normalizeSpace s))}
+
+   "nth"
+   {:fn (fn [sequence index & optional-not-found]
+          (let [values (if (map? sequence)    ; map instance check to match behaviour of jtwig's first/last implementation
+                         (-> sequence vals)
+                         sequence)]
+            (if optional-not-found
+              (nth values index (first optional-not-found))
+              (nth values index))))}
+
+   "pad_left"
+   {:fn (fn [s size & [padding-string]]
+          (StringUtils/leftPad s size (or padding-string " ")))}
+
+   "pad_right"
+   {:fn (fn [s size & [padding-string]]
+          (StringUtils/rightPad s size (or padding-string " ")))}
 
    "random"
    {:fn (fn [& values]
@@ -77,6 +99,10 @@
    "range"
    {:fn (fn [low high & [step]]
           (range low high (or step 1)))}
+
+   "repeat"
+   {:fn (fn [s n]
+          (StringUtils/repeat s n))}
 
    "rest"
    {:fn (fn [sequence]
@@ -108,4 +134,14 @@
    "sort_descending_by"
    {:fn (fn [coll k]
           (sort-by #(get % k) #(compare %2 %1) coll))
-    :aliases ["sort_desc_by"]}})
+    :aliases ["sort_desc_by"]}
+
+   "wrap"
+   {:fn (fn [s length & [wrap-long-words? new-line-string]]
+          (WordUtils/wrap
+            s
+            length
+            new-line-string
+            (if (nil? wrap-long-words?)
+              false
+              wrap-long-words?)))}})

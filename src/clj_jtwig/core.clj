@@ -1,11 +1,13 @@
 (ns clj-jtwig.core
   "wrapper functions for working with JTwig from clojure"
   (:import (com.lyncode.jtwig JtwigTemplate JtwigContext JtwigModelMap)
+           (com.lyncode.jtwig.resource ClasspathJtwigResource)
            (com.lyncode.jtwig.tree.api Content)
            (java.io File FileNotFoundException ByteArrayOutputStream)
            (java.net URL))
   (:require [clojure.walk :refer [stringify-keys]])
-  (:use [clj-jtwig.functions]))
+  (:use [clj-jtwig.functions]
+        [clj-jtwig.utils]))
 
 ; global options
 (defonce options (atom {; true/false to enable/disable compiled template caching when using templates from
@@ -55,20 +57,15 @@
        (.compile)))
 
 (defn- compile-template-file [^File file]
-  (->> file
-       (new JtwigTemplate)
-       (.compile)))
-
-(defn- inside-jar? [^File file]
-  (-> file
-      (.getPath)
-      ; the path of a file inside a jar looks something like "jar:file:/path/to/file.jar!/path/to/file"
-      (.contains "jar!")))
-
-(defn- get-file-last-modified [^File file]
   (if (inside-jar? file)
-    0
-    (.lastModified file)))
+    (->> (.getPath file)
+         (get-jar-resource-filename)
+         (new ClasspathJtwigResource)
+         (new JtwigTemplate)
+         (.compile))
+    (->> file
+         (new JtwigTemplate)
+         (.compile))))
 
 (defn- newer? [^File file other-timestamp]
   (let [file-last-modified (get-file-last-modified file)]
@@ -83,7 +80,7 @@
 ; this function really only exists so i can easily change the exception type / message in the future
 ; since this file-exists check is needed in a few places
 (defn- err-if-no-file [^File file]
-  (if-not (.exists file)
+  (if-not (exists? file)
     (throw (new FileNotFoundException (str "Template file \"" file "\" not found.")))))
 
 (defn- cache-compiled-template! [^File file create-fn]
@@ -129,12 +126,6 @@
   []
   (reset! compiled-templates {}))
 
-(defn- get-resource-path
-  (^URL [^String filename]
-   (-> (Thread/currentThread)
-       (.getContextClassLoader)
-       (.getResource filename))))
-
 (defn- make-model-map [model-map-values {:keys [skip-model-map-stringify?] :as options}]
   (let [model-map-obj (new JtwigModelMap)
         values        (if-not skip-model-map-stringify?
@@ -177,4 +168,5 @@
    the template."
   [^String filename model-map & [options]]
   (if-let [resource-filename (get-resource-path filename)]
-    (render-file (.getPath resource-filename) model-map options)))
+    (render-file (.getPath resource-filename) model-map options)
+    (throw (new FileNotFoundException (str "Template file \"" filename "\" not found.")))))
