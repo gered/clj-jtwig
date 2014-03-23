@@ -64,6 +64,10 @@
    {:fn (fn [s size & [padding-string]]
           (StringUtils/leftPad s size (or padding-string " ")))}
 
+   "pad_right"
+   {:fn (fn [s size & [padding-string]]
+          (StringUtils/rightPad s size (or padding-string " ")))}
+
    "random"
    {:fn (fn [& values]
           (let [first-value (first values)]

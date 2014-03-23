@@ -326,6 +326,14 @@
     (is (= (render "{{ pad_left('bat', 5, 'x') }}" nil)
            "xxbat")))
 
+  (testing "pad_right"
+    (is (= (render "{{ pad_right('bat', 5) }}" nil)
+           "bat  "))
+    (is (= (render "{{ pad_right('bat', 3) }}" nil)
+           "bat"))
+    (is (= (render "{{ pad_right('bat', 5, 'x') }}" nil)
+           "batxx")))
+
   (testing "random"
     (is (some #{(render "{{ ['apple', 'orange', 'citrus']|random }}" nil)}
               ["apple" "orange" "citrus"]))
