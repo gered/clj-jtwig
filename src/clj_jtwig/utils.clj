@@ -1,7 +1,8 @@
 (ns clj-jtwig.utils
   "various helper / utility functions"
   (:import (java.net URL)
-           (java.io File)))
+           (java.io File)
+           (java.util.jar JarFile)))
 
 (defn inside-jar? [^File file]
   (-> file
@@ -15,10 +16,20 @@
       (subs resource-filename (+ pos 5))
       resource-filename)))
 
+(defn get-jar-filename [^String resource-filename]
+  (let [start (.indexOf resource-filename "file:")
+        end   (.indexOf resource-filename "jar!")]
+    (if (and (not= -1 start)
+             (not= -1 end))
+      (subs resource-filename 5 (+ end 3))
+      resource-filename)))
+
 (defn exists? [^File file]
   (if (inside-jar? file)
-    ;; TODO: can't use File.exists() for this
-    true
+    (let [filename  (.getPath file)
+          jar-file  (new JarFile (get-jar-filename filename))
+          jar-entry (.getJarEntry jar-file (get-jar-resource-filename filename))]
+      (not (nil? jar-entry)))
     (.exists file)))
 
 (defn get-file-last-modified [^File file]
