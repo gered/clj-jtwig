@@ -1,7 +1,7 @@
 # clj-jtwig
 
 [Twig](http://twig.sensiolabs.org/) templates in Clojure, provided by [Jtwig](http://jtwig.org). clj-jtwig is a simple
-Clojure wrapper around Jtwig to make using it in Clojure applications simple.
+Clojure wrapper around Jtwig to make using it in Clojure applications simple. It also provides some extra functions on top of what Jtwig provides already. As well, it adds a simple template caching layer that works out-of-the-box when rendering templates from files.
 
 For more information on Twig templates, you can refer to the [Twig documentation](http://twig.sensiolabs.org/documentation)
 and the [Jtwig documentation](http://jtwig.org/documentation). Please note that Jtwig is not yet a full implementation
@@ -78,7 +78,7 @@ Otherwise, you normally don't need to include `model`, it is implicit.
 
 ### Web Apps
 
-For web apps built on Compojure, you can do something like:
+For web apps built on [Ring](https://github.com/ring-clojure/ring) and [Compojure](https://github.com/weavejester/compojure), you can do something like:
 
 ```clojure
 (ns yourwebapp.views
@@ -89,14 +89,9 @@ For web apps built on Compojure, you can do something like:
 (deftype JtwigRenderable [template-filename params]
   Renderable
   (render [this request]
-    (content-type
-      (response
-        (render-resource
-          template-filename
-          ; add a var 'context' which contains the current servlet context path which you will
-          ; want to prefix on to your css/js/img and other links that you render in your html
-          (assoc params :context (or (:context request) ""))))
-      "text/html; charset=utf-8")))
+    (-> (render-resource template-filename params)
+        (response)
+        (content-type "text/html; charset=utf-8"))))
 
 ; params is an optional map that will get passed to clj-jtwig.core/render-resource. this is will
 ; need to contain any variables you want to use in 'template-filename'
@@ -119,9 +114,21 @@ And then in your routes:
   (GET "/" [] (home-page)))
 ```
 
+You will also probably want to add `clj-jtwig.web.middleware/wrap-servlet-context-path` to your [Ring middleware](https://github.com/ring-clojure/ring/wiki/Concepts#middleware) so that template functions such as `path`, `javascript` and `stylesheet` can automatically prepend the servlet context path to urls you provide to your web app's resources.
+
+If you need to output the servlet context path in one of your templates (e.g. for use with Javascript code that performs AJAX requests), then you can either update the `render` function example provided above to `assoc` the value of `clj-jtwig.web.middleware/*servlet-context-path*` to the `params` map. Then you can refer to this value in your templates the same way as any other value you pass in. Or you can do something like this in one of your templates:
+
+```html
+<script type="text/javascript">
+  var context = "{{ path('') }}";
+</script>
+```
+
+Which will make a global variable `context` available to your Javascript code which will have the value of the servlet context path.
+
 ### Functions
 
-Adding custom functions is also easy:
+Adding custom functions is easy:
 
 ```clojure
 (ns yourapp.core
@@ -169,7 +176,7 @@ in a 'defn'-style syntax.
 
 #### Standard Library Functions
 
-A number of functions are provided out of the box by Jtwig. A few more are provided to fill in some gaps by clj-jtwig.
+A number of functions are provided out of the box by Jtwig. A few more are provided to fill in some gaps by clj-jtwig. The following is a list of all the functions available with clj-jtwig.
 
 | Function | Description
 |----------|------------
@@ -232,8 +239,8 @@ A number of functions are provided out of the box by Jtwig. A few more are provi
 Jtwig provides support for compiling templates so that subsequent renders can be performed faster. clj-jtwig builds on
 this support by providing a very simple caching mechanism when rendering templates from files. Template files are
 compiled the first time they are rendered and then the compiled result cached. From then on, each time that same
-template file is rendered, the source file on disk is checked to see if it has been modified since it was last cached,
-and if so we re-load, compile and cache it before rendering it again.
+template file is rendered, the source file on disk is checked to see if it has been modified since it was last cached.
+If it has been we re-load, compile and cache it before rendering it again. As long as the file has not been modified the previously compiled result is re-used.
 
 Caching is turned on by default, but can be turned off if necessary via
 `clj-jtwig.core/toggle-compiled-template-caching!`.
@@ -243,6 +250,36 @@ template who's filename is passed to one of the render functions is checked to s
 templates include other template files but those included files are never directly rendered themselves, then they will
 not get recompiled and cached unless the parent template is updated as well. This can be a problem during development
 of an application, so you may want to turn caching off during development.
+
+## Jtwig is a Java library. What does that mean for Clojure?
+
+Jtwig is written in Java. This has important implications for the way that you pass model maps from Clojure to your Jtwig templates.
+
+Jtwig uses a `HashMap<String, Object>` object to hold template model data [as can be seen here](https://github.com/lyncode/jtwig/blob/master/jtwig-core/src/main/java/com/lyncode/jtwig/JtwigModelMap.java). This is fine for Jtwig as that's pretty idiomatic for Java apps. Idiomatic Clojure code using maps will typically use keywords as the keys of a map. This doesn't translate so nicely when you pass in a Clojure map with all keywords as the keys to a template and the template attempts to reference values inside the map.
+
+Ideally, you would expect to be able to do this in Clojure:
+
+```clojure
+(deftwigfn "get_bar" [m]
+  (:bar m))
+
+(render "{{ get_bar(foo) }}" {:foo {:bar "hello"}})  ; should output "hello", right? wrong!
+```
+
+Instead, "null" will get output. This is because Jtwig is trying to resolve values in the model map assuming the keys are strings and Java doesn't have Clojure's keywords natively of course. To try to help you out with this, when you call `render`, `render-file` or `render-resource` in clj-jtwig, by default it will call `clojure.walk/stringify-keys` on the map you pass in.
+
+If the `get_bar` function had been written like this instead:
+
+```clojure
+(deftwigfn "get_bar" [m]
+  (get m "bar"))
+```
+
+Then you would get the expected output of "hello".
+
+To help avoid such confusion, you could make sure that the maps you pass in to clj-jtwig are already using strings for keys and not rely on the `stringify-keys` call. If you would like to write your code like this, you can optionally pass `{:skip-model-map-stringify? true}` as the third argument to any of the render functions in clj-jtwig and it will not call `stringify-keys`, which will cause exceptions to be thrown if you pass a map using keyword keys (because it will try to cast from a keyword to a string).
+
+TL;DR, even if you pass Clojure maps using keywords for all your keys, clj-jtwig converts all of them to strings to play nice with Jtwig. Your custom template functions written in Clojure should assume any maps it receives as arguments have all their keys as strings instead of keywords.
 
 ## Debugging Tips
 
