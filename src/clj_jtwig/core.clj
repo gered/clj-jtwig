@@ -168,4 +168,5 @@
    the template."
   [^String filename model-map & [options]]
   (if-let [resource-filename (get-resource-path filename)]
-    (render-file (.getPath resource-filename) model-map options)))
+    (render-file (.getPath resource-filename) model-map options)
+    (throw (new FileNotFoundException (str "Template file \"" filename "\" not found.")))))
