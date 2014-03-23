@@ -1,6 +1,7 @@
 (ns clj-jtwig.core
   "wrapper functions for working with JTwig from clojure"
   (:import (com.lyncode.jtwig JtwigTemplate JtwigContext JtwigModelMap)
+           (com.lyncode.jtwig.resource ClasspathJtwigResource)
            (com.lyncode.jtwig.tree.api Content)
            (java.io File FileNotFoundException ByteArrayOutputStream)
            (java.net URL))
@@ -56,9 +57,15 @@
        (.compile)))
 
 (defn- compile-template-file [^File file]
-  (->> file
-       (new JtwigTemplate)
-       (.compile)))
+  (if (inside-jar? file)
+    (->> (.getPath file)
+         (get-jar-resource-filename)
+         (new ClasspathJtwigResource)
+         (new JtwigTemplate)
+         (.compile))
+    (->> file
+         (new JtwigTemplate)
+         (.compile))))
 
 (defn- newer? [^File file other-timestamp]
   (let [file-last-modified (get-file-last-modified file)]

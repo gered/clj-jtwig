@@ -9,6 +9,12 @@
       ; the path of a file inside a jar looks something like "jar:file:/path/to/file.jar!/path/inside/jar/to/file"
       (.contains "jar!")))
 
+(defn get-jar-resource-filename [^String resource-filename]
+  (let [pos (.indexOf resource-filename "jar!")]
+    (if-not (= -1 pos)
+      (subs resource-filename (+ pos 5))
+      resource-filename)))
+
 (defn exists? [^File file]
   (if (inside-jar? file)
     ;; TODO: can't use File.exists() for this
