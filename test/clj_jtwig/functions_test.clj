@@ -284,10 +284,6 @@
     (is (= (render "{{ [1, 2, 3, 4, 5]|butlast }}" nil)
            "[1, 2, 3, 4]")))
 
-  (testing "capitalize_all"
-    (is (= (render "{{ capitalize_all('hello world') }}" nil)
-           "Hello World")))
-
   (testing "center"
     (is (= (render "{{ center('bat', 5) }}" nil)
            " bat "))
