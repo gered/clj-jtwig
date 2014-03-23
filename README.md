@@ -63,7 +63,7 @@ If a variable's name has any special characters (such as a `-` character), you c
 instead.
 
 ```jinja
-Customer name: {{customer['full-name'}}
+Customer name: {{customer['full-name']}}
 ```
 
 If a "root" variable has special characters in it's name, you can also access it using the same syntax, but you will
@@ -83,7 +83,6 @@ For web apps built on Compojure, you can do something like:
 ```clojure
 (ns yourwebapp.views
   (:require [clj-jtwig.core :refer [render-resource]]
-            [clj-jtwig.functions :refer [deftwigfn]]
             [ring.util.response :refer [content-type response]]
             [compojure.response :refer [Renderable]]))
 
