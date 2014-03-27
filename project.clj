@@ -1,4 +1,4 @@
-(defproject clj-jtwig "0.3.1"
+(defproject clj-jtwig "0.3.2"
   :description "Clojure wrapper for JTwig"
   :url "https://github.com/gered/clj-jtwig"
   :license {:name "Apache License, Version 2.0"
