@@ -6,7 +6,7 @@ Clojure wrapper around Jtwig to make using it in Clojure applications simple.
 **This is the Java 6 branch.** It is identical in every way to the master branch, except for the use of a version of
 Jtwig that has been very slightly modified to be Java 6 compatible.
 
-[Please see the master branch for more information about clj-jtwig.](https://github.com/gered/clj-jtwig/tree/java6)
+[Please see the master branch for more information about clj-jtwig.](https://github.com/gered/clj-jtwig)
 
 ## License
 
