@@ -96,7 +96,7 @@ For web apps built on [Ring](https://github.com/ring-clojure/ring) and [Compojur
 ; params is an optional map that will get passed to clj-jtwig.core/render-resource. this is will
 ; need to contain any variables you want to use in 'template-filename'
 (defn render [template-filename & [params]]
-  (JtwigRenderable. template params))
+  (JtwigRenderable. template-filename params))
 ```
 
 And then in your routes:
