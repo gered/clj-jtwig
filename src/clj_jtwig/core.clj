@@ -30,6 +30,13 @@
   [enable?]
   (swap! options assoc :skip-file-status-checks enable?))
 
+(defn toggle-check-for-minified-web-resources!
+  "toggle a check for minified equivalents of css/js files when using the web functions 'stylesheet' and
+   'javascript'. when this is enabled, if a '.min.js' or '.min.css' equivalent file exists for the url
+   passed to these two functions, then it will be used instead of the original file specified."
+  [enable?]
+  (swap! options assoc :check-for-minified-web-resources enable?))
+
 ; cache of compiled templates. key is the file path. value is a map with :last-modified which is the source file's
 ; last modification timestamp and :template which is a com.lyncode.jtwig.tree.api.Content object which has been
 ; compiled already and can be rendered by calling it's 'render' method
