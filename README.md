@@ -14,7 +14,7 @@ available in clj-jtwig.
 
 ### Leiningen
 
-!["clj-jtwig version"](https://clojars.org/clj-jtwig/latest-version.svg)
+[See Clojars for the up to date `project.clj` dependency line](https://clojars.org/clj-jtwig)
 
 #### Java 6
 
@@ -24,7 +24,7 @@ want to still use clj-jtwig, you can use the version maintained in
 that has been very slightly modified so that it compiles for Java 6. No other changes have been made and this fork is
 only being maintained by me *purely* for use with clj-jtwig. *It is not supported by the Jtwig developers.*
 
-!["clj-jtwig version"](https://clojars.org/clj-jtwig-java6/latest-version.svg)
+[See Clojars for the up to date `project.clj` dependency line](https://clojars.org/clj-jtwig-java6)
 
 ### Rendering Templates
 
