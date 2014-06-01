@@ -15,12 +15,15 @@
     (let [uri (new URI url)]
       (str/blank? (.getScheme uri)))))
 
+(defn- get-resource-modification-timestamp [^String resource-url]
+  (if (relative-url? resource-url)
+    ;; TODO: while 'public' is the default with Compojure, applications can override with something else ...
+    (->> (str "public" resource-url)
+         (get-context-url)
+         (get-resource-modification-date))))
+
 (defn- get-url-string [url]
-  (if-let [modification-timestamp (if (relative-url? url)
-                                    ;; TODO: while 'public' is the default with Compojure, applications can override with something else ...
-                                    (->> (str "public" url)
-                                         (get-context-url)
-                                         (get-resource-modification-date)))]
+  (if-let [modification-timestamp (get-resource-modification-timestamp url)]
     (str url "?" modification-timestamp)
     url))
 
