@@ -29,7 +29,10 @@
 
 (defn- get-url-string [url]
   (if-let [modification-timestamp (get-resource-modification-timestamp url)]
-    (str url "?" modification-timestamp)
+    ; because it looks kind of dumb to have '?0' at the end of URLs when running from a jar ...
+    (if (= modification-timestamp 0)
+      url
+      (str url "?" modification-timestamp))
     url))
 
 (defn- minified-url? [url]
