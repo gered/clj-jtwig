@@ -5,7 +5,12 @@
   (:import (java.net URI))
   (:require [clj-jtwig.web.middleware :refer [*servlet-context-path*]]
             [clojure.string :as str])
-  (:use [clj-jtwig.utils]))
+  (:use [clj-jtwig.utils]
+        [clj-jtwig.options]))
+
+;; TODO: while 'public' is the default with Compojure, applications can override with something else ...
+;;       should make this customizable (some option added to clj-jtwig.options likely ...)
+(def root-resource-path "public")
 
 (defn- get-context-url [url]
   (str *servlet-context-path* url))
@@ -17,8 +22,8 @@
 
 (defn- get-resource-modification-timestamp [^String resource-url]
   (if (relative-url? resource-url)
-    ;; TODO: while 'public' is the default with Compojure, applications can override with something else ...
-    (->> (str "public" resource-url)
+
+    (->> (str root-resource-path resource-url)
          (get-context-url)
          (get-resource-modification-date))))
 
