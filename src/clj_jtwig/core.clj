@@ -7,24 +7,8 @@
            (java.net URL))
   (:require [clojure.walk :refer [stringify-keys]])
   (:use [clj-jtwig.functions]
-        [clj-jtwig.utils]))
-
-; global options
-(defonce options (atom {; true/false to enable/disable compiled template caching when using templates from
-                        ; files only. this does not affect templates being rendered directly from strings
-                        :cache-compiled-templates true
-
-                        ; true/false to enable/disable file status checks (existance of file and last modification
-                        ; date/time check). if true, these checks will be skipped ONLY if a compiled template for
-                        ; the filepath given is cached already. if this is true and an attempt is made to render
-                        ; a template which is not yet cached, these checks will still be run (this is to ensure that
-                        ; templates can still be loaded and compiled the first time they are rendered).
-                        ; if caching is completely disabled (via the above option), then this setting is ignored and
-                        ; file status checks will always be performed.
-                        ; this option is intended to help increase performance when you know in advance that your
-                        ; templates will not be modified/deleted after they are first compiled and you want to skip
-                        ; any unnecessary file I/O.
-                        :skip-file-status-checks  false}))
+        [clj-jtwig.utils]
+        [clj-jtwig.options]))
 
 (declare flush-template-cache!)
 
@@ -45,6 +29,13 @@
    the application is running."
   [enable?]
   (swap! options assoc :skip-file-status-checks enable?))
+
+(defn toggle-check-for-minified-web-resources!
+  "toggle a check for minified equivalents of css/js files when using the web functions 'stylesheet' and
+   'javascript'. when this is enabled, if a '.min.js' or '.min.css' equivalent file exists for the url
+   passed to these two functions, then it will be used instead of the original file specified."
+  [enable?]
+  (swap! options assoc :check-for-minified-web-resources enable?))
 
 ; cache of compiled templates. key is the file path. value is a map with :last-modified which is the source file's
 ; last modification timestamp and :template which is a com.lyncode.jtwig.tree.api.Content object which has been
