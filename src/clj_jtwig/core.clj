@@ -37,6 +37,13 @@
   [enable?]
   (swap! options assoc :check-for-minified-web-resources enable?))
 
+(defn toggle-auto-stringify-keys!
+  [enable?]
+  "toggle whether model-maps passed to the render functions will have their keys recursively converted
+   from keywords to strings. Jtwig requires that all the keys in model maps are strings. this is turned
+   off by default."
+  (swap! options assoc :stringify-keys enable?))
+
 ; cache of compiled templates. key is the file path. value is a map with :last-modified which is the source file's
 ; last modification timestamp and :template which is a com.lyncode.jtwig.tree.api.Content object which has been
 ; compiled already and can be rendered by calling it's 'render' method
@@ -117,22 +124,22 @@
   []
   (reset! compiled-templates {}))
 
-(defn- make-model-map [model-map-values {:keys [skip-model-map-stringify?] :as options}]
+(defn- make-model-map [model-map-values]
   (let [model-map-obj (new JtwigModelMap)
-        values        (if-not skip-model-map-stringify?
+        values        (if (:stringify-keys @options)
                         (stringify-keys model-map-values)
                         model-map-values)]
     (doseq [[k v] values]
       (.add model-map-obj k v))
     model-map-obj))
 
-(defn- make-context [model-map options]
-  (let [model-map-obj (make-model-map model-map options)]
+(defn- make-context [model-map]
+  (let [model-map-obj (make-model-map model-map)]
     (new JtwigContext model-map-obj @functions)))
 
 (defn- render-compiled-template
-  [^Content compiled-template model-map & [options]]
-  (let [context (make-context model-map options)]
+  [^Content compiled-template model-map]
+  (let [context (make-context model-map)]
     ; technically we don't have to use with-open with a ByteArrayOutputStream but if we later
     ; decide to use another OutputStream implementation, this is already all set up :)
     (with-open [stream (new ByteArrayOutputStream)]
@@ -143,21 +150,21 @@
   "renders a template contained in the provided string, using the values in model-map
    as the model for the template. templates rendered using this function are always
    parsed, compiled and rendered. the compiled results are never cached."
-  [s model-map & [options]]
+  [s model-map]
   (let [compiled-template (compile-template-string s)]
-    (render-compiled-template compiled-template model-map options)))
+    (render-compiled-template compiled-template model-map)))
 
 (defn render-file
   "renders a template from a file, using the values in model-map as the model for the template"
-  [^String filename model-map & [options]]
+  [^String filename model-map]
   (let [file              (new File filename)
         compiled-template (compile-template! file)]
-    (render-compiled-template compiled-template model-map options)))
+    (render-compiled-template compiled-template model-map)))
 
 (defn render-resource
   "renders a template from a resource file, using the values in the model-map as the model for
    the template."
-  [^String filename model-map & [options]]
+  [^String filename model-map]
   (if-let [resource-filename (get-resource-path filename)]
-    (render-file (.getPath resource-filename) model-map options)
+    (render-file (.getPath resource-filename) model-map)
     (throw (new FileNotFoundException (str "Template file \"" filename "\" not found.")))))

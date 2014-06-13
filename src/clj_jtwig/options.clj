@@ -28,4 +28,14 @@
      ; part of the filename, and if so use that file instead.
      ; note that enabling this option does obviously incur a slight file I/O performance penalty
      ; whenever these functions are used
-     :check-for-minified-web-resources true}))
+     :check-for-minified-web-resources true
+
+     ; whether or not to automatically stringify the keys of model-maps. Jtwig requires that all
+     ; the keys will be strings for model value resolution to work correctly. if you are already
+     ; setting your keys as maps, then you can turn this option off to save a bit on performance
+     ; NOTE: why use false as a default? less "magic" out of the box. most people when first
+     ;       using this library will probably run into this issue and then want to turn this
+     ;       option on, but i think that's preferable (forcing the user to learn about this)
+     ;       then later on wondering why the value from the model passed to a custom jtwig
+     ;       function has strings for keys instead of keywords, etc...
+     :stringify-keys                   false}))
