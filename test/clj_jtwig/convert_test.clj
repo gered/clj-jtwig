@@ -1,7 +1,8 @@
 (ns clj-jtwig.convert-test
   (:require [clojure.test :refer :all]
             [clj-jtwig.core :refer :all]
-            [clj-jtwig.convert :refer :all]))
+            [clj-jtwig.convert :refer :all]
+            [clj-jtwig.functions :refer :all]))
 
 (deftest java-to-clojure
   (testing "Converting Java values to Clojure values"
@@ -153,3 +154,57 @@
     (is (= nil
            (clojure->java nil))
         "nil")))
+
+(deftest function-map-param-conversion
+  (testing "Jtwig function map parameter conversion (keyword keys)"
+    (do
+      (reset-functions!)
+
+      (deftwigfn "keys_are_all_keywords" [x]
+        (every? keyword? (keys x)))
+      (deftwigfn "keys_are_all_strings" [x]
+        (every? string? (keys x)))
+
+      (set-options! :auto-convert-map-keywords true)
+      (is (= (render "{{keys_are_all_keywords(x)}}" {:x {:a "foo" :b "bar" :c "baz"}})
+             "true"))
+      (is (= (render "{{keys_are_all_keywords(x)}}" {:x {"a" "foo" "b" "bar" "c" "baz"}})
+             "true"))
+
+      (set-options! :auto-convert-map-keywords false)
+      (is (= (render "{{keys_are_all_keywords(x)}}" {"x" {:a "foo" :b "bar" :c "baz"}})
+             "true"))
+      (is (= (render "{{keys_are_all_strings(x)}}" {"x" {"a" "foo" "b" "bar" "c" "baz"}})
+             "true"))
+
+      (set-options! :auto-convert-map-keywords true)
+      (reset-functions!))))
+
+(deftest function-map-return-conversion
+  (testing "Jtwig function map return value conversion (keyword keys)"
+    (do
+      (reset-functions!)
+
+      (deftwigfn "get_map_with_keywords" [x]
+        {:a "foo" :b "bar" :c "baz"})
+      (deftwigfn "get_map_with_strings" [x]
+        {"a" "foo" "b" "bar" "c" "baz"})
+      (deftwigfn "keys_are_all_keywords" [x]
+        (every? keyword? (keys x)))
+      (deftwigfn "keys_are_all_strings" [x]
+        (every? string? (keys x)))
+
+      (set-options! :auto-convert-map-keywords true)
+      (is (= (render "{{keys_are_all_keywords(get_map_with_keywords(null))}}" {})
+             "true"))
+      (is (= (render "{{keys_are_all_keywords(get_map_with_strings(null))}}" {})
+             "true"))
+
+      (set-options! :auto-convert-map-keywords false)
+      (is (= (render "{{keys_are_all_keywords(get_map_with_keywords(null))}}" {})
+             "true"))
+      (is (= (render "{{keys_are_all_strings(get_map_with_strings(null))}}" {})
+             "true"))
+
+      (set-options! :auto-convert-map-keywords true)
+      (reset-functions!))))
