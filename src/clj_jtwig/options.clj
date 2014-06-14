@@ -33,4 +33,6 @@
      ; whether or not to automatically stringify the keys of model-maps. Jtwig requires that all
      ; the keys will be strings for model value resolution to work correctly. if you are already
      ; setting your keys as maps, then you can turn this option off to save a bit on performance
-     :stringify-keys                   true}))
+     :stringify-model-map-keys         true
+
+     }))
