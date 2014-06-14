@@ -29,16 +29,16 @@
            "Hello Bob!")
         "passing a model-map where the keys are strings already")
     (do
-      (set-options! :stringify-model-map-keys false)
+      (set-options! :auto-convert-map-keywords false)
 
       (is (= (render "Hello {{ name }}!"
                      {"name" "Bob"})
              "Hello Bob!")
           "passing a model-map where the keys are strings already and we want to skip auto stringifying bbb")
 
-      (set-options! :stringify-model-map-keys true))
+      (set-options! :auto-convert-map-keywords true))
     (do
-      (set-options! :stringify-model-map-keys false)
+      (set-options! :auto-convert-map-keywords false)
 
       (is (thrown?
             ClassCastException
@@ -46,7 +46,7 @@
                     {:name "Bob"}))
           "passing a model-map where the keys are keywords and try skipping auto stringifying the keys")
 
-      (set-options! :stringify-model-map-keys true))))
+      (set-options! :auto-convert-map-keywords true))))
 
 (deftest passing-model-map-data
   (testing "Passing Clojure data structures to JTwigContext's"
@@ -117,16 +117,16 @@
              "Hello Bob from a file!")
           "passing a model-map where the keys are strings already")
       (do
-        (set-options! :stringify-model-map-keys false)
+        (set-options! :auto-convert-map-keywords false)
 
         (is (= (render-file test-filename
                             {"name" "Bob"})
                "Hello Bob from a file!")
             "passing a model-map where the keys are strings already and we want to skip auto stringifying bbb")
 
-        (set-options! :stringify-model-map-keys true))
+        (set-options! :auto-convert-map-keywords true))
       (do
-        (set-options! :stringify-model-map-keys false)
+        (set-options! :auto-convert-map-keywords false)
 
         (is (thrown?
               ClassCastException
@@ -134,4 +134,4 @@
                            {:name "Bob"}))
             "passing a model-map where the keys are keywords and try skipping auto stringifying the keys")
 
-        (set-options! :stringify-model-map-keys true)))))
+        (set-options! :auto-convert-map-keywords true)))))

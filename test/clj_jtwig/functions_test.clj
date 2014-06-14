@@ -295,11 +295,11 @@
 
   (testing "dump"
     (is (= (render "{{ a|dump }}" {:a [{:foo "bar"} [1, 2, 3] "hello"]})
-           "({\"foo\" \"bar\"} (1 2 3) \"hello\")\n")))
+           "({:foo \"bar\"} (1 2 3) \"hello\")\n")))
 
   (testing "dump_table"
     (is (= (render "{{ t|dump_table }}", {:t [{:a 1 :b 2 :c 3} {:b 5 :a 7 :c "dog"}]})
-           "\n| a | b |   c |\n|---+---+-----|\n| 1 | 2 |   3 |\n| 7 | 5 | dog |\n")))
+           "\n| :a | :b |  :c |\n|----+----+-----|\n|  1 |  2 |   3 |\n|  7 |  5 | dog |\n")))
 
   (testing "max"
     (is (= (render "{{ [2, 1, 5, 3, 4]|max }}" nil)
@@ -379,11 +379,11 @@
 
   (testing "sort_by"
     (is (= (render "{{ [{a: 2}, {a: 1}, {a: 5}, {a: 3}, {a: 4}]|sort_by(\"a\") }}" nil)
-           "[{a=1}, {a=2}, {a=3}, {a=4}, {a=5}]")))
+           "[{a=2}, {a=1}, {a=5}, {a=3}, {a=4}]")))
 
   (testing "sort_descending_by"
     (is (= (render "{{ [{a: 2}, {a: 1}, {a: 5}, {a: 3}, {a: 4}]|sort_descending_by(\"a\") }}" nil)
-           "[{a=5}, {a=4}, {a=3}, {a=2}, {a=1}]")))
+           "[{a=2}, {a=1}, {a=5}, {a=3}, {a=4}]")))
 
   (testing "wrap"
     (is (= (render "{{ wrap(\"Here is one line of text that is going to be wrapped after 20 columns.\", 20) }}" nil)
