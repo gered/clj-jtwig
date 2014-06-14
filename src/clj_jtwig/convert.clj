@@ -24,26 +24,6 @@
              (assoc m (to-clojure k) (to-clojure v)))
            {})))
 
-  java.lang.Number
-  (to-clojure [x]
-    x)
-
-  java.lang.Boolean
-  (to-clojure [x]
-    x)
-
-  java.lang.Character
-  (to-clojure [x]
-    x)
-
-  java.lang.String
-  (to-clojure [x]
-    x)
-
-  clojure.lang.Keyword
-  (to-clojure [x]
-    x)
-
   java.lang.Object
   (to-clojure [x]
     x
