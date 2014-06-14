@@ -12,37 +12,18 @@
 
 (declare flush-template-cache!)
 
-(defn toggle-compiled-template-caching!
-  "toggle caching of compiled templates on/off. if off, every time a template is rendered from a file
-   it will be re-loaded from disk and re-compiled before being rendered. caching is turned on by default."
-  [enable?]
-  ; always clear the cache when toggling. this will help ensure that any possiblity of weird behaviour from
-  ; leftover stuff being stuck in the cache pre-toggle-on/off won't happen
-  (flush-template-cache!)
-  (swap! options assoc :cache-compiled-templates enable?))
-
-(defn toggle-file-status-check-skipping!
-  "toggle file status checks on/off. if enabled, after a template is compiled and cached then the source file
-   on disk is not rechecked for modifications, skipping any file I/O that would otherwise occur. the default
-   for this option is false, meaning that normal file status checks will always be performed. this is probably
-   what you want unless performance is critical and you know your template files will not be modified while
-   the application is running."
-  [enable?]
-  (swap! options assoc :skip-file-status-checks enable?))
-
-(defn toggle-check-for-minified-web-resources!
-  "toggle a check for minified equivalents of css/js files when using the web functions 'stylesheet' and
-   'javascript'. when this is enabled, if a '.min.js' or '.min.css' equivalent file exists for the url
-   passed to these two functions, then it will be used instead of the original file specified."
-  [enable?]
-  (swap! options assoc :check-for-minified-web-resources enable?))
-
-(defn toggle-auto-stringify-keys!
-  [enable?]
-  "toggle whether model-maps passed to the render functions will have their keys recursively converted
-   from keywords to strings. Jtwig requires that all the keys in model maps are strings. this is turned
-   off by default."
-  (swap! options assoc :stringify-keys enable?))
+(defn set-options!
+  "sets global options. can specify values for all options or just the ones you care about. changing some
+   options via this function can trigger various important 'house-keeping' operations, so you should
+   always use this function rather then manually updating clj-jtwig.options/options.
+   see clj-jtwig.options for the option keys you can specify here."
+  [& opts]
+  (doseq [[k v] (apply hash-map opts)]
+    (if (= :cache-compiled-templates k)
+      ; always clear the cache when toggling. this will help ensure that any possiblity of weird behaviour from
+      ; leftover stuff being stuck in the cache pre-toggle-on/off won't happen
+      (flush-template-cache!))
+    (swap! options assoc k v)))
 
 ; cache of compiled templates. key is the file path. value is a map with :last-modified which is the source file's
 ; last modification timestamp and :template which is a com.lyncode.jtwig.tree.api.Content object which has been
