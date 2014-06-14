@@ -28,17 +28,25 @@
                    {"name" "Bob"})
            "Hello Bob!")
         "passing a model-map where the keys are strings already")
-    (is (= (render "Hello {{ name }}!"
-                   {"name" "Bob"}
-                   {:skip-model-map-stringify? true})
-           "Hello Bob!")
-        "passing a model-map where the keys are strings already and we want to skip auto stringifying bbb")
-    (is (thrown?
-          ClassCastException
-          (render "Hello {{ name }}!"
-                  {:name "Bob"}
-                  {:skip-model-map-stringify? true}))
-        "passing a model-map where the keys are keywords and try skipping auto stringifying the keys")))
+    (do
+      (set-options! :stringify-keys false)
+
+      (is (= (render "Hello {{ name }}!"
+                     {"name" "Bob"})
+             "Hello Bob!")
+          "passing a model-map where the keys are strings already and we want to skip auto stringifying bbb")
+
+      (set-options! :stringify-keys true))
+    (do
+      (set-options! :stringify-keys false)
+
+      (is (thrown?
+            ClassCastException
+            (render "Hello {{ name }}!"
+                    {:name "Bob"}))
+          "passing a model-map where the keys are keywords and try skipping auto stringifying the keys")
+
+      (set-options! :stringify-keys true))))
 
 (deftest passing-model-map-data
   (testing "Passing Clojure data structures to JTwigContext's"
@@ -108,14 +116,22 @@
                           {"name" "Bob"})
              "Hello Bob from a file!")
           "passing a model-map where the keys are strings already")
-      (is (= (render-file test-filename
-                     {"name" "Bob"}
-                     {:skip-model-map-stringify? true})
-             "Hello Bob from a file!")
-          "passing a model-map where the keys are strings already and we want to skip auto stringifying bbb")
-      (is (thrown?
-            ClassCastException
-            (render-file test-filename
-                         {:name "Bob"}
-                         {:skip-model-map-stringify? true}))
-          "passing a model-map where the keys are keywords and try skipping auto stringifying the keys"))))
+      (do
+        (set-options! :stringify-keys false)
+
+        (is (= (render-file test-filename
+                            {"name" "Bob"})
+               "Hello Bob from a file!")
+            "passing a model-map where the keys are strings already and we want to skip auto stringifying bbb")
+
+        (set-options! :stringify-keys true))
+      (do
+        (set-options! :stringify-keys false)
+
+        (is (thrown?
+              ClassCastException
+              (render-file test-filename
+                           {:name "Bob"}))
+            "passing a model-map where the keys are keywords and try skipping auto stringifying the keys")
+
+        (set-options! :stringify-keys true)))))
