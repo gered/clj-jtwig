@@ -107,7 +107,7 @@
 
 (defn- make-model-map [model-map-values]
   (let [model-map-obj (new JtwigModelMap)
-        values        (if (:stringify-model-map-keys @options)
+        values        (if (:auto-convert-map-keywords @options)
                         (stringify-keys model-map-values)
                         model-map-values)]
     (doseq [[k v] values]

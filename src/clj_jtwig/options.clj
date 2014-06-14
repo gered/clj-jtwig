@@ -30,9 +30,10 @@
      ; whenever these functions are used
      :check-for-minified-web-resources true
 
-     ; whether or not to automatically stringify the keys of model-maps. Jtwig requires that all
-     ; the keys will be strings for model value resolution to work correctly. if you are already
-     ; setting your keys as maps, then you can turn this option off to save a bit on performance
-     :stringify-model-map-keys         true
-
-     }))
+     ; automatically convert keyword keys in maps to/from strings as necessary when being passed
+     ; in model-maps, when passed to Jtwig functions and when returned as values from Jtwig
+     ; functions. this does incur a slight performance penalty, but is best turned on to avoid
+     ; having to do any manual conversions yourself and to keep your Clojure code as idiomatic
+     ; as possible. Jtwig model-maps at the very least do require all the keys to be strings
+     ; (not keywords) to ensure that model-map value resolution works as expected.
+     :auto-convert-map-keywords        true}))

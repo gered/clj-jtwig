@@ -1,5 +1,6 @@
 (ns clj-jtwig.convert
-  "functions for converting data types both ways between clojure and java")
+  "functions for converting data types both ways between clojure and java"
+  (:use [clj-jtwig.options]))
 
 (defprotocol JavaToClojure
   (to-clojure [x]))
@@ -21,7 +22,12 @@
          (.entrySet)
          (reduce
            (fn [m [k v]]
-             (assoc m (to-clojure k) (to-clojure v)))
+             (assoc m
+               (if (and (:auto-convert-map-keywords @options)
+                        (string? k))
+                 (keyword k)
+                 (to-clojure k))
+               (to-clojure v)))
            {})))
 
   java.lang.Object
@@ -45,7 +51,12 @@
   (to-java [x]
     (let [hashmap (new java.util.HashMap (count x))]
       (doseq [[k v] x]
-        (.put hashmap (to-java k) (to-java v)))
+        (.put hashmap
+              (if (and (:auto-convert-map-keywords @options)
+                       (keyword? k))
+                (name k)
+                (to-java k))
+              (to-java v)))
       hashmap))
 
   clojure.lang.IPersistentCollection
