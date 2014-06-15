@@ -3,7 +3,14 @@
    library and are just here to fill in the gaps for now."
   (:import (org.apache.commons.lang3.text WordUtils)
            (org.apache.commons.lang3 StringUtils))
-  (:use [clojure.pprint]))
+  (:use [clojure.pprint]
+        [clj-jtwig.options]))
+
+(defn- possible-keyword-string [x]
+  (if (and (:auto-convert-map-keywords @options)
+           (string? x))
+    (keyword x)
+    x))
 
 ; we are using a separate map to hold the standard functions instead of using deftwigfn, etc. because doing it this
 ; way makes it easy to re-add all these functions when/if the JTwig function repository object needs to be
@@ -32,7 +39,7 @@
    "contains"
    {:fn (fn [coll value]
           (if (map? coll)
-            (contains? coll value)
+            (contains? coll (possible-keyword-string value))
             ; explicit use of '=' to allow testing for falsey values
             (some #(= value %) coll)))}
 
@@ -146,11 +153,13 @@
 
    "sort_by"
    {:fn (fn [coll k]
-          (sort-by #(get % k) coll))}
+          (let [sort-key (possible-keyword-string k)]
+            (sort-by #(get % sort-key) coll)))}
 
    "sort_descending_by"
    {:fn (fn [coll k]
-          (sort-by #(get % k) #(compare %2 %1) coll))
+          (let [sort-key (possible-keyword-string k)]
+            (sort-by #(get % sort-key) #(compare %2 %1) coll)))
     :aliases ["sort_desc_by"]}
 
    "wrap"
