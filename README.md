@@ -249,12 +249,12 @@ clj-jtwig has a few global options that affect template parsing and rendering be
 by calling `clj-jtwig.core/set-options!` and passing in only the keys/values you want to change.
 
 #### `:cache-compiled-templates`
-**Default is ON.**
+Default is ON.
 
 Whether or not to cache compiled templates. Caching is discussed in the next section.
 
 #### `:skip-file-status-checks`
-**Default is OFF.**
+Default is OFF.
 
 Whether or not to continue checking file modification times each time a template file is rendered *after* the first 
 time it is compiled and cached. This option can be turned on to avoid extra file I/O (which is likely to be very 
@@ -262,7 +262,7 @@ minor anyway), but it means that after templates are first cached, any subsequen
 not trigger the cached copy to be updated. If caching is disabled, this option is ignored.
 
 #### `:check-for-minified-web-resources`
-**Default is ON.**
+Default is ON.
 
 If turned on, the `stylesheet` and `javascript` template functions will automatically check for an equivalent
 similarly named .css/.js file with a .min.css/.min.js file extension and if found, render a link/script html tag
@@ -270,7 +270,7 @@ with that filename instead. This option is intended to be turned off during deve
 production builds to help simplify automatic switching between minified and development copies of css/js resources.
 
 #### `:auto-convert-map-keywords`
-**Default is ON.**
+Default is ON.
 
 If turned on, the model map passed to any of the "render" functions will have any keyword keys converted to strings.
 As well, custom template function parameters and return values that are maps containing keyword keys will also
@@ -301,13 +301,14 @@ of an application, so you may want to turn caching off during development.
 
 Jtwig is written in Java. Model maps in Jtwig are represented by a `HashMap<String, Object>` [as can be seen here](https://github.com/lyncode/jtwig/blob/master/jtwig-core/src/main/java/com/lyncode/jtwig/JtwigModelMap.java).
 Right away, this has an important implication for idiomatic Clojure code: Keywords are typically used as the keys for
-maps.
+maps, and obviously you can't directly add a `clojure.lang.Keyword` as the key to a `HashMap<String, Object>`. Just
+calling `.toString` isn't good enough here either.
 
-There are two immediate options to get around this:
+There are two immediate options to get around this problem:
 
 * Automatically convert the keys in all maps passed to Jtwig to use strings instead of keywords. And then do this again
   when map values are passed by Jtwig to custom template functions and then back again when map values are returned
-  from custom template functions.
+  from custom template functions. We use the Clojure `name` and `keyword` functions for this to/back conversion.
 * Do nothing and force the application to use strings for all map keys.
 
 There are pros and cons to each approach. Unfortunately there is no 100% perfect solution.
@@ -324,10 +325,11 @@ To demonstrate the problem:
 
 (set-options! :auto-convert-map-keywords false)
 
-(render "Hello {{name}}!" {:name "Gered"})                      ; = ClassCastException
+(render "Hello {{name}}!" {:name "Gered"})                      ; throws a ClassCastException
 (render "Hello {{name}}!" {"name" "Gered"})                     ; "Hello Gered!"
 (render "Hello {{person.name}}!" {"person" {:name "Gered"}})    ; "Hello null!"
 
+; this is the default setting
 (set-options! :auto-convert-map-keywords true)
 
 (render "Hello {{name}}!" {:name "Gered"})                      ; "Hello Gered!"
@@ -348,11 +350,14 @@ This same type of problem also applies to variables passed to custom template fu
 
 (render "Hello {{get_map(name).name}}!" {"name" "Gered"})       ; "Hello null!"
 
+; this is the default setting
 (set-options! :auto-convert-map-keywords true)
 
 (render "Hello {{get_map(name).name}}!" {:name "Gered"})        ; "Hello Gered!"
-
 ```
+
+The decision was made to have `:auto-convert-map-keywords` on by default as usually in Clojure code you will be using
+keywords in all your maps while strings for keys are rarely used (if ever) in a typical Clojure application.
 
 ## Debugging Tips
 
