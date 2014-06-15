@@ -293,6 +293,20 @@
     (is (= (render "{{ center('bat', 5, 'x') }}" nil)
            "xbatx")))
 
+  (testing "contains"
+    (is (= (render "{{ {a: 1, b: 2, c: 3}|contains(\"b\") }}" nil)
+           "true"))
+    (is (= (render "{{ {a: 1, b: 2, c: 3}|contains(\"d\") }}" nil)
+           "false"))
+    (is (= (render "{{ [1, 2, 3, 4]|contains(2) }}" nil)
+           "true"))
+    (is (= (render "{{ [1, 2, 3, 4]|contains(5) }}" nil)
+           "false"))
+    (is (= (render "{{ \"abcdef\"|contains(\"abc\") }}" nil)
+           "true"))
+    (is (= (render "{{ \"abcdef\"|contains(\"xyz\") }}" nil)
+           "false")))
+
   (testing "dump"
     (is (= (render "{{ a|dump }}" {:a [{:foo "bar"} [1, 2, 3] "hello"]})
            "({:foo \"bar\"} (1 2 3) \"hello\")\n")))
@@ -300,6 +314,26 @@
   (testing "dump_table"
     (is (= (render "{{ t|dump_table }}", {:t [{:a 1 :b 2 :c 3} {:b 5 :a 7 :c "dog"}]})
            "\n| :a | :b |  :c |\n|----+----+-----|\n|  1 |  2 |   3 |\n|  7 |  5 | dog |\n")))
+
+  (testing "index_of"
+    (is (= (render "{{ [1, 2, 3, 2, 1]|index_of(2) }}" nil)
+           "1"))
+    (is (= (render "{{ [1, 2, 3, 2, 1]|index_of(5) }}" nil)
+           "-1"))
+    (is (= (render "{{ \"abcdcba\"|index_of(\"b\") }}" nil)
+           "1"))
+    (is (= (render "{{ \"abcdcba\"|index_of(\"z\") }}" nil)
+           "-1")))
+
+  (testing "last_index_of"
+    (is (= (render "{{ [1, 2, 3, 2, 1]|last_index_of(2) }}" nil)
+           "3"))
+    (is (= (render "{{ [1, 2, 3, 2, 1]|last_index_of(5) }}" nil)
+           "-1"))
+    (is (= (render "{{ \"abcdcba\"|last_index_of(\"b\") }}" nil)
+           "5"))
+    (is (= (render "{{ \"abcdcba\"|last_index_of(\"z\") }}" nil)
+           "-1")))
 
   (testing "max"
     (is (= (render "{{ [2, 1, 5, 3, 4]|max }}" nil)
