@@ -38,10 +38,12 @@
 
    "contains"
    {:fn (fn [coll value]
-          (if (map? coll)
-            (contains? coll (possible-keyword-string value))
+          (cond
+            (map? coll)    (contains? coll (possible-keyword-string value))
+            (string? coll) (.contains coll value)
             ; explicit use of '=' to allow testing for falsey values
-            (some #(= value %) coll)))}
+            (coll? coll)   (not (nil? (some #(= value %) coll)))
+            :else          (throw (new Exception (str "'contains' passed invalid collection type: " (type coll))))))}
 
    "dump"
    {:fn (fn [x]
