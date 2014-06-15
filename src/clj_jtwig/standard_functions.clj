@@ -29,6 +29,13 @@
    {:fn (fn [s size & [padding-string]]
           (StringUtils/center s size (or padding-string " ")))}
 
+   "contains"
+   {:fn (fn [coll value]
+          (if (map? coll)
+            (contains? coll value)
+            ; explicit use of '=' to allow testing for falsey values
+            (some #(= value %) coll)))}
+
    "dump"
    {:fn (fn [x]
           (with-out-str
@@ -38,6 +45,20 @@
    {:fn (fn [x]
           (with-out-str
             (clojure.pprint/print-table x)))}
+
+   "index_of"
+   {:fn (fn [coll value]
+          (cond
+            (instance? java.util.List coll) (.indexOf coll value)
+            (string? coll)                  (.indexOf coll value)
+            :else                           (throw (new Exception (str "'index_if' passed invalid collection type: " (type coll))))))}
+
+   "last_index_of"
+   {:fn (fn [coll value]
+          (cond
+            (instance? java.util.List coll) (.lastIndexOf coll value)
+            (string? coll)                  (.lastIndexOf coll value)
+            :else                           (throw (new Exception (str "'last_index_if' passed invalid collection type: " (type coll))))))}
 
    "max"
    {:fn (fn [& numbers]
