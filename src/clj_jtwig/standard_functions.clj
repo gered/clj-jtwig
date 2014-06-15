@@ -3,7 +3,14 @@
    library and are just here to fill in the gaps for now."
   (:import (org.apache.commons.lang3.text WordUtils)
            (org.apache.commons.lang3 StringUtils))
-  (:use [clojure.pprint]))
+  (:use [clojure.pprint]
+        [clj-jtwig.options]))
+
+(defn- possible-keyword-string [x]
+  (if (and (:auto-convert-map-keywords @options)
+           (string? x))
+    (keyword x)
+    x))
 
 ; we are using a separate map to hold the standard functions instead of using deftwigfn, etc. because doing it this
 ; way makes it easy to re-add all these functions when/if the JTwig function repository object needs to be
@@ -29,6 +36,15 @@
    {:fn (fn [s size & [padding-string]]
           (StringUtils/center s size (or padding-string " ")))}
 
+   "contains"
+   {:fn (fn [coll value]
+          (cond
+            (map? coll)    (contains? coll (possible-keyword-string value))
+            (string? coll) (.contains coll value)
+            ; explicit use of '=' to allow testing for falsey values
+            (coll? coll)   (not (nil? (some #(= value %) coll)))
+            :else          (throw (new Exception (str "'contains' passed invalid collection type: " (type coll))))))}
+
    "dump"
    {:fn (fn [x]
           (with-out-str
@@ -38,6 +54,20 @@
    {:fn (fn [x]
           (with-out-str
             (clojure.pprint/print-table x)))}
+
+   "index_of"
+   {:fn (fn [coll value]
+          (cond
+            (instance? java.util.List coll) (.indexOf coll value)
+            (string? coll)                  (.indexOf coll (if (char? value) (int value) value))
+            :else                           (throw (new Exception (str "'index_of' passed invalid collection type: " (type coll))))))}
+
+   "last_index_of"
+   {:fn (fn [coll value]
+          (cond
+            (instance? java.util.List coll) (.lastIndexOf coll value)
+            (string? coll)                  (.lastIndexOf coll (if (char? value) (int value) value))
+            :else                           (throw (new Exception (str "'last_index_of' passed invalid collection type: " (type coll))))))}
 
    "max"
    {:fn (fn [& numbers]
@@ -125,12 +155,42 @@
 
    "sort_by"
    {:fn (fn [coll k]
-          (sort-by #(get % k) coll))}
+          (let [sort-key (possible-keyword-string k)]
+            (sort-by #(get % sort-key) coll)))}
 
    "sort_descending_by"
    {:fn (fn [coll k]
-          (sort-by #(get % k) #(compare %2 %1) coll))
+          (let [sort-key (possible-keyword-string k)]
+            (sort-by #(get % sort-key) #(compare %2 %1) coll)))
     :aliases ["sort_desc_by"]}
+
+   "to_double"
+   {:fn (fn [x]
+          (Double/parseDouble x))}
+
+   "to_float"
+   {:fn (fn [x]
+          (Float/parseFloat x))}
+
+   "to_int"
+   {:fn (fn [x]
+          (Integer/parseInt x))}
+
+   "to_keyword"
+   {:fn (fn [x]
+          (keyword x))}
+
+   "to_long"
+   {:fn (fn [x]
+          (Long/parseLong x))}
+
+   "to_string"
+   {:fn (fn [x]
+          (cond
+            (keyword? x)                       (name x)
+            (instance? clojure.lang.LazySeq x) (str (seq x))
+            (coll? x)                          (str x)
+            :else                              (.toString x)))}
 
    "wrap"
    {:fn (fn [s length & [wrap-long-words? new-line-string]]

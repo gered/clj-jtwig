@@ -1,6 +1,8 @@
 (ns clj-jtwig.convert-test
   (:require [clojure.test :refer :all]
-            [clj-jtwig.convert :refer :all]))
+            [clj-jtwig.core :refer :all]
+            [clj-jtwig.convert :refer :all]
+            [clj-jtwig.functions :refer :all]))
 
 (deftest java-to-clojure
   (testing "Converting Java values to Clojure values"
@@ -48,9 +50,22 @@
     (is (= [1 2 3 4 [\a \b \c \d \e]]
            (java->clojure (new java.util.ArrayList [1 2 3 4 [\a \b \c \d \e]])))
         "nested ArrayList")
-    (is (= {:a 1 :b 2 :c 3 :d 4 :e 5 :f {:foo "foo" "bar" nil :baz {:lol "hello"}}}
-           (java->clojure (new java.util.HashMap {:a 1 :b 2 :c 3 :d 4 :e 5 :f {:foo "foo" "bar" nil :baz {:lol "hello"}}})))
-        "nested HashMap")
+    (do
+      (set-options! :auto-convert-map-keywords false)
+      (is (= {:a 1 :b 2 :c 3 :d 4 :e 5
+              :f {:foo "foo" "bar" nil :baz {:lol "hello"}}}
+             (java->clojure (new java.util.HashMap {:a 1 :b 2 :c 3 :d 4 :e 5
+                                                    :f {:foo "foo" "bar" nil :baz {:lol "hello"}}})))
+          "nested HashMap without auto keyword->string conversion")
+      (set-options! :auto-convert-map-keywords true))
+    (do
+      (set-options! :auto-convert-map-keywords true)
+      (is (= {:a 1 :b 2 :c 3 :d 4 :e 5
+              :f {:foo "foo" :bar nil :baz {:lol "hello"}}}
+             (java->clojure (new java.util.HashMap {"a" 1 "b" 2 "c" 3 "d" 4 "e" 5
+                                                    "f" {"foo" "foo" "bar" nil "baz" {"lol" "hello"}}})))
+          "nested HashMap with auto keyword->string conversion")
+      (set-options! :auto-convert-map-keywords true))
 
     (is (= (new java.util.Date 1393769745745)
            (java->clojure (new java.util.Date 1393769745745)))
@@ -99,16 +114,38 @@
     (is (= java.util.HashMap
            (class (clojure->java {:a 1 :b 2 :c 3 :d 4 :e 5})))
         "map type")
-    (is (= (new java.util.HashMap {:a 1 :b 2 :c 3 :d 4 :e 5})
-           (clojure->java {:a 1 :b 2 :c 3 :d 4 :e 5}))
-        "map contents")
+    (do
+      (set-options! :auto-convert-map-keywords false)
+      (is (= (new java.util.HashMap {:a 1 :b 2 :c 3 :d 4 :e 5})
+             (clojure->java {:a 1 :b 2 :c 3 :d 4 :e 5}))
+          "map contents without auto keyword->string conversion")
+      (set-options! :auto-convert-map-keywords true))
+    (do
+      (set-options! :auto-convert-map-keywords true)
+      (is (= (new java.util.HashMap {"a" 1 "b" 2 "c" 3 "d" 4 "e" 5})
+             (clojure->java {:a 1 :b 2 :c 3 :d 4 :e 5}))
+          "map contents with auto keyword->string conversion")
+      (set-options! :auto-convert-map-keywords true))
 
     (is (= (new java.util.ArrayList [1 2 3 4 (new java.util.ArrayList [\a \b \c \d \e])])
            (clojure->java [1 2 3 4 [\a \b \c \d \e]]))
         "nested vector contents")
-    (is (= (new java.util.HashMap {:a 1 :b 2 :c 3 :d 4 :e 5 :f (new java.util.HashMap {:foo "foo" "bar" nil :baz (new java.util.HashMap {:lol "hello"})})})
-           (clojure->java {:a 1 :b 2 :c 3 :d 4 :e 5 :f {:foo "foo" "bar" nil :baz {:lol "hello"}}}))
-        "nested map contents")
+    (do
+      (set-options! :auto-convert-map-keywords false)
+      (is (= (new java.util.HashMap {:a 1 :b 2 :c 3 :d 4 :e 5
+                                     :f (new java.util.HashMap {:foo "foo" "bar" nil :baz (new java.util.HashMap {:lol "hello"})})})
+             (clojure->java {:a 1 :b 2 :c 3 :d 4 :e 5
+                             :f {:foo "foo" "bar" nil :baz {:lol "hello"}}}))
+          "nested map contents without auto keyword->string conversion")
+      (set-options! :auto-convert-map-keywords true))
+    (do
+      (set-options! :auto-convert-map-keywords true)
+      (is (= (new java.util.HashMap {"a" 1 "b" 2 "c" 3 "d" 4 "e" 5
+                                     "f" (new java.util.HashMap {"foo" "foo" "bar" nil "baz" (new java.util.HashMap {"lol" "hello"})})})
+             (clojure->java {:a 1 :b 2 :c 3 :d 4 :e 5
+                             :f {:foo "foo" "bar" nil :baz {:lol "hello"}}}))
+          "nested map contents with auto keyword->string conversion")
+      (set-options! :auto-convert-map-keywords true))
 
     (is (= (new java.util.Date 1393769745745)
            (clojure->java (new java.util.Date 1393769745745)))
@@ -117,3 +154,57 @@
     (is (= nil
            (clojure->java nil))
         "nil")))
+
+(deftest function-map-param-conversion
+  (testing "Jtwig function map parameter conversion (keyword keys)"
+    (do
+      (reset-functions!)
+
+      (deftwigfn "keys_are_all_keywords" [x]
+        (every? keyword? (keys x)))
+      (deftwigfn "keys_are_all_strings" [x]
+        (every? string? (keys x)))
+
+      (set-options! :auto-convert-map-keywords true)
+      (is (= (render "{{keys_are_all_keywords(x)}}" {:x {:a "foo" :b "bar" :c "baz"}})
+             "true"))
+      (is (= (render "{{keys_are_all_keywords(x)}}" {:x {"a" "foo" "b" "bar" "c" "baz"}})
+             "true"))
+
+      (set-options! :auto-convert-map-keywords false)
+      (is (= (render "{{keys_are_all_keywords(x)}}" {"x" {:a "foo" :b "bar" :c "baz"}})
+             "true"))
+      (is (= (render "{{keys_are_all_strings(x)}}" {"x" {"a" "foo" "b" "bar" "c" "baz"}})
+             "true"))
+
+      (set-options! :auto-convert-map-keywords true)
+      (reset-functions!))))
+
+(deftest function-map-return-conversion
+  (testing "Jtwig function map return value conversion (keyword keys)"
+    (do
+      (reset-functions!)
+
+      (deftwigfn "get_map_with_keywords" [x]
+        {:a "foo" :b "bar" :c "baz"})
+      (deftwigfn "get_map_with_strings" [x]
+        {"a" "foo" "b" "bar" "c" "baz"})
+      (deftwigfn "keys_are_all_keywords" [x]
+        (every? keyword? (keys x)))
+      (deftwigfn "keys_are_all_strings" [x]
+        (every? string? (keys x)))
+
+      (set-options! :auto-convert-map-keywords true)
+      (is (= (render "{{keys_are_all_keywords(get_map_with_keywords(null))}}" {})
+             "true"))
+      (is (= (render "{{keys_are_all_keywords(get_map_with_strings(null))}}" {})
+             "true"))
+
+      (set-options! :auto-convert-map-keywords false)
+      (is (= (render "{{keys_are_all_keywords(get_map_with_keywords(null))}}" {})
+             "true"))
+      (is (= (render "{{keys_are_all_strings(get_map_with_strings(null))}}" {})
+             "true"))
+
+      (set-options! :auto-convert-map-keywords true)
+      (reset-functions!))))

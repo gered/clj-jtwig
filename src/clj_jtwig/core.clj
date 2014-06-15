@@ -12,30 +12,18 @@
 
 (declare flush-template-cache!)
 
-(defn toggle-compiled-template-caching!
-  "toggle caching of compiled templates on/off. if off, every time a template is rendered from a file
-   it will be re-loaded from disk and re-compiled before being rendered. caching is turned on by default."
-  [enable?]
-  ; always clear the cache when toggling. this will help ensure that any possiblity of weird behaviour from
-  ; leftover stuff being stuck in the cache pre-toggle-on/off won't happen
-  (flush-template-cache!)
-  (swap! options assoc :cache-compiled-templates enable?))
-
-(defn toggle-file-status-check-skipping!
-  "toggle file status checks on/off. if enabled, after a template is compiled and cached then the source file
-   on disk is not rechecked for modifications, skipping any file I/O that would otherwise occur. the default
-   for this option is false, meaning that normal file status checks will always be performed. this is probably
-   what you want unless performance is critical and you know your template files will not be modified while
-   the application is running."
-  [enable?]
-  (swap! options assoc :skip-file-status-checks enable?))
-
-(defn toggle-check-for-minified-web-resources!
-  "toggle a check for minified equivalents of css/js files when using the web functions 'stylesheet' and
-   'javascript'. when this is enabled, if a '.min.js' or '.min.css' equivalent file exists for the url
-   passed to these two functions, then it will be used instead of the original file specified."
-  [enable?]
-  (swap! options assoc :check-for-minified-web-resources enable?))
+(defn set-options!
+  "sets global options. can specify values for all options or just the ones you care about. changing some
+   options via this function can trigger various important 'house-keeping' operations, so you should
+   always use this function rather then manually updating clj-jtwig.options/options.
+   see clj-jtwig.options for the option keys you can specify here."
+  [& opts]
+  (doseq [[k v] (apply hash-map opts)]
+    (if (= :cache-compiled-templates k)
+      ; always clear the cache when toggling. this will help ensure that any possiblity of weird behaviour from
+      ; leftover stuff being stuck in the cache pre-toggle-on/off won't happen
+      (flush-template-cache!))
+    (swap! options assoc k v)))
 
 ; cache of compiled templates. key is the file path. value is a map with :last-modified which is the source file's
 ; last modification timestamp and :template which is a com.lyncode.jtwig.tree.api.Content object which has been
@@ -117,22 +105,22 @@
   []
   (reset! compiled-templates {}))
 
-(defn- make-model-map [model-map-values {:keys [skip-model-map-stringify?] :as options}]
+(defn- make-model-map [model-map-values]
   (let [model-map-obj (new JtwigModelMap)
-        values        (if-not skip-model-map-stringify?
+        values        (if (:auto-convert-map-keywords @options)
                         (stringify-keys model-map-values)
                         model-map-values)]
     (doseq [[k v] values]
       (.add model-map-obj k v))
     model-map-obj))
 
-(defn- make-context [model-map options]
-  (let [model-map-obj (make-model-map model-map options)]
+(defn- make-context [model-map]
+  (let [model-map-obj (make-model-map model-map)]
     (new JtwigContext model-map-obj @functions)))
 
 (defn- render-compiled-template
-  [^Content compiled-template model-map & [options]]
-  (let [context (make-context model-map options)]
+  [^Content compiled-template model-map]
+  (let [context (make-context model-map)]
     ; technically we don't have to use with-open with a ByteArrayOutputStream but if we later
     ; decide to use another OutputStream implementation, this is already all set up :)
     (with-open [stream (new ByteArrayOutputStream)]
@@ -143,21 +131,21 @@
   "renders a template contained in the provided string, using the values in model-map
    as the model for the template. templates rendered using this function are always
    parsed, compiled and rendered. the compiled results are never cached."
-  [s model-map & [options]]
+  [s model-map]
   (let [compiled-template (compile-template-string s)]
-    (render-compiled-template compiled-template model-map options)))
+    (render-compiled-template compiled-template model-map)))
 
 (defn render-file
   "renders a template from a file, using the values in model-map as the model for the template"
-  [^String filename model-map & [options]]
+  [^String filename model-map]
   (let [file              (new File filename)
         compiled-template (compile-template! file)]
-    (render-compiled-template compiled-template model-map options)))
+    (render-compiled-template compiled-template model-map)))
 
 (defn render-resource
   "renders a template from a resource file, using the values in the model-map as the model for
    the template."
-  [^String filename model-map & [options]]
+  [^String filename model-map]
   (if-let [resource-filename (get-resource-path filename)]
-    (render-file (.getPath resource-filename) model-map options)
+    (render-file (.getPath resource-filename) model-map)
     (throw (new FileNotFoundException (str "Template file \"" filename "\" not found.")))))
