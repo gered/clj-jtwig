@@ -51,14 +51,14 @@
           (cond
             (instance? java.util.List coll) (.indexOf coll value)
             (string? coll)                  (.indexOf coll (if (char? value) (int value) value))
-            :else                           (throw (new Exception (str "'index_if' passed invalid collection type: " (type coll))))))}
+            :else                           (throw (new Exception (str "'index_of' passed invalid collection type: " (type coll))))))}
 
    "last_index_of"
    {:fn (fn [coll value]
           (cond
             (instance? java.util.List coll) (.lastIndexOf coll value)
             (string? coll)                  (.lastIndexOf coll (if (char? value) (int value) value))
-            :else                           (throw (new Exception (str "'last_index_if' passed invalid collection type: " (type coll))))))}
+            :else                           (throw (new Exception (str "'last_index_of' passed invalid collection type: " (type coll))))))}
 
    "max"
    {:fn (fn [& numbers]
