@@ -164,6 +164,34 @@
             (sort-by #(get % sort-key) #(compare %2 %1) coll)))
     :aliases ["sort_desc_by"]}
 
+   "to_double"
+   {:fn (fn [x]
+          (Double/parseDouble x))}
+
+   "to_float"
+   {:fn (fn [x]
+          (Float/parseFloat x))}
+
+   "to_int"
+   {:fn (fn [x]
+          (Integer/parseInt x))}
+
+   "to_keyword"
+   {:fn (fn [x]
+          (keyword x))}
+
+   "to_long"
+   {:fn (fn [x]
+          (Long/parseLong x))}
+
+   "to_string"
+   {:fn (fn [x]
+          (cond
+            (keyword? x)                       (name x)
+            (instance? clojure.lang.LazySeq x) (str (seq x))
+            (coll? x)                          (str x)
+            :else                              (.toString x)))}
+
    "wrap"
    {:fn (fn [s length & [wrap-long-words? new-line-string]]
           (WordUtils/wrap
