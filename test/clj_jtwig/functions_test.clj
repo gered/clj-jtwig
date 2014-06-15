@@ -379,11 +379,11 @@
 
   (testing "sort_by"
     (is (= (render "{{ [{a: 2}, {a: 1}, {a: 5}, {a: 3}, {a: 4}]|sort_by(\"a\") }}" nil)
-           "[{a=2}, {a=1}, {a=5}, {a=3}, {a=4}]")))
+           "[{a=1}, {a=2}, {a=3}, {a=4}, {a=5}]")))
 
   (testing "sort_descending_by"
     (is (= (render "{{ [{a: 2}, {a: 1}, {a: 5}, {a: 3}, {a: 4}]|sort_descending_by(\"a\") }}" nil)
-           "[{a=2}, {a=1}, {a=5}, {a=3}, {a=4}]")))
+           "[{a=5}, {a=4}, {a=3}, {a=2}, {a=1}]")))
 
   (testing "wrap"
     (is (= (render "{{ wrap(\"Here is one line of text that is going to be wrapped after 20 columns.\", 20) }}" nil)
