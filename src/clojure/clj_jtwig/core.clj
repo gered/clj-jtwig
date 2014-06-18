@@ -1,14 +1,19 @@
 (ns clj-jtwig.core
   "wrapper functions for working with JTwig from clojure"
   (:import (com.lyncode.jtwig JtwigTemplate JtwigContext JtwigModelMap)
+           (com.lyncode.jtwig.content.api Renderable)
+           (com.lyncode.jtwig.configuration JtwigConfiguration)
+           (com.lyncode.jtwig.render RenderContext)
+           (com.lyncode.jtwig.render.config RenderConfiguration)
            (com.lyncode.jtwig.resource ClasspathJtwigResource)
-           (com.lyncode.jtwig.tree.api Content)
            (java.io File FileNotFoundException ByteArrayOutputStream)
            (java.net URL))
   (:require [clojure.walk :refer [stringify-keys]])
   (:use [clj-jtwig.functions]
         [clj-jtwig.utils]
         [clj-jtwig.options]))
+
+(defonce configuration (JtwigConfiguration.))
 
 (declare flush-template-cache!)
 
@@ -26,7 +31,7 @@
     (swap! options assoc k v)))
 
 ; cache of compiled templates. key is the file path. value is a map with :last-modified which is the source file's
-; last modification timestamp and :template which is a com.lyncode.jtwig.tree.api.Content object which has been
+; last modification timestamp and :template which is a com.lyncode.jtwig.content.api.Renderable object which has been
 ; compiled already and can be rendered by calling it's 'render' method
 (defonce compiled-templates (atom {}))
 
@@ -119,12 +124,11 @@
     (new JtwigContext model-map-obj @functions)))
 
 (defn- render-compiled-template
-  [^Content compiled-template model-map]
-  (let [context (make-context model-map)]
-    ; technically we don't have to use with-open with a ByteArrayOutputStream but if we later
-    ; decide to use another OutputStream implementation, this is already all set up :)
-    (with-open [stream (new ByteArrayOutputStream)]
-      (.render compiled-template stream context)
+  [^Renderable renderable model-map]
+  (with-open [stream (new ByteArrayOutputStream)]
+    (let [context        (make-context model-map)
+          render-context (RenderContext/create (.render configuration) context stream)]
+      (.render renderable render-context)
       (.toString stream))))
 
 (defn render
@@ -132,15 +136,15 @@
    as the model for the template. templates rendered using this function are always
    parsed, compiled and rendered. the compiled results are never cached."
   [s model-map]
-  (let [compiled-template (compile-template-string s)]
-    (render-compiled-template compiled-template model-map)))
+  (let [renderable (compile-template-string s)]
+    (render-compiled-template renderable model-map)))
 
 (defn render-file
   "renders a template from a file, using the values in model-map as the model for the template"
   [^String filename model-map]
-  (let [file              (new File filename)
-        compiled-template (compile-template! file)]
-    (render-compiled-template compiled-template model-map)))
+  (let [file       (new File filename)
+        renderable (compile-template! file)]
+    (render-compiled-template renderable model-map)))
 
 (defn render-resource
   "renders a template from a resource file, using the values in the model-map as the model for

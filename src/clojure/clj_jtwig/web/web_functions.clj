@@ -5,7 +5,8 @@
   (:import (java.net URI))
   (:require [clj-jtwig.web.middleware :refer [*servlet-context-path*]]
             [clojure.string :as str])
-  (:use [clj-jtwig.utils]
+  (:use [clj-jtwig.function-utils]
+        [clj-jtwig.utils]
         [clj-jtwig.options]))
 
 ;; TODO: while 'public' is the default with Compojure, applications can override with something else ...
@@ -55,23 +56,18 @@
         minified-url
         url))))
 
-; defined using the same type of map structure as in clj-jtwig.standard-functions
+(deflibrary web-functions
+  (library-function "path" [url]
+    (get-context-url url))
 
-(defonce web-functions
-  {"path"
-   {:fn (fn [url]
-          (get-context-url url))}
+  (library-function "stylesheet" [url & [media]]
+    (let [fmt           (if media
+                          "<link href=\"%s\" rel=\"stylesheet\" type=\"text/css\" media=\"%s\" />"
+                          "<link href=\"%s\" rel=\"stylesheet\" type=\"text/css\" />")
+          resource-path (get-minified-resource-url url)]
+      (format fmt (get-url-string resource-path) media)))
 
-   "stylesheet"
-   {:fn (fn [url & [media]]
-          (let [fmt           (if media
-                                "<link href=\"%s\" rel=\"stylesheet\" type=\"text/css\" media=\"%s\" />"
-                                "<link href=\"%s\" rel=\"stylesheet\" type=\"text/css\" />")
-                resource-path (get-minified-resource-url url)]
-            (format fmt (get-url-string resource-path) media)))}
-
-   "javascript"
-   {:fn (fn [url]
-          (let [fmt           "<script type=\"text/javascript\" src=\"%s\"></script>"
-                resource-path (get-minified-resource-url url)]
-            (format fmt (get-url-string resource-path))))}})
+  (library-function "javascript" [url]
+    (let [fmt           "<script type=\"text/javascript\" src=\"%s\"></script>"
+          resource-path (get-minified-resource-url url)]
+      (format fmt (get-url-string resource-path)))))

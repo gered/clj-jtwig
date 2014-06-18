@@ -1,37 +1,26 @@
 (ns clj-jtwig.functions
   "custom template function/filter support functions."
-  (:import (com.lyncode.jtwig.functions JtwigFunction)
-           (com.lyncode.jtwig.functions.repository DefaultFunctionRepository)
-           (com.lyncode.jtwig.functions.exceptions FunctionNotFoundException FunctionException))
-  (:require [clj-jtwig.convert :refer [java->clojure clojure->java]])
+  (:import (com.lyncode.jtwig.functions.repository FunctionResolver)
+           (com.lyncode.jtwig.functions.exceptions FunctionNotFoundException FunctionException)
+           (com.lyncode.jtwig.functions.annotations JtwigFunction)
+           (com.lyncode.jtwig.functions.parameters GivenParameters)
+           (clj_jtwig TemplateFunction))
+  (:require [clj-jtwig.convert :refer [java->clojure clojure->java]]
+            [clj-jtwig.function-utils :refer [make-function-handler]])
   (:use [clj-jtwig.standard-functions]
         [clj-jtwig.web.web-functions]))
 
-(defn- make-function-handler [f]
-  (reify JtwigFunction
-    (execute [_ arguments]
-      (try
-        (clojure->java (apply f (map java->clojure arguments)))
-        (catch Exception ex
-          (throw (new FunctionException ex)))))))
-
-(defn- make-aliased-array [aliases]
-  (let [n     (count aliases)
-        array (make-array String n)]
-    (doseq [index (range n)]
-      (aset array index (nth aliases index)))
-    array))
+(def object-array-type (Class/forName "[Ljava.lang.Object;"))
+(def function-parameters (doto (GivenParameters.)
+                        (.add (to-array [object-array-type]))))
 
 (defn- add-function-library! [repository functions]
-  (doseq [[name {:keys [aliases fn]}] functions]
-    (.add repository
-          (make-function-handler fn)
-          name
-          (make-aliased-array aliases)))
+  (doseq [fn-obj functions]
+    (.store repository fn-obj))
   repository)
 
 (defn- create-function-repository []
-  (doto (new DefaultFunctionRepository (make-array JtwigFunction 0))
+  (doto (new FunctionResolver)
     (add-function-library! standard-functions)
     (add-function-library! web-functions)))
 
@@ -44,36 +33,30 @@
   []
   (reset! functions (create-function-repository)))
 
-(defn function-exists? [^String name]
+(defn get-function [^String name]
   (try
-    (.retrieve @functions name)
-    true
-    (catch FunctionNotFoundException ex
-      false)))
+    (.get @functions name function-parameters)
+    (catch FunctionNotFoundException ex)))
 
-(defn add-function!
-  "adds a new template function under the name specified. templates can call the function by the
-   name specified (or one of the aliases specified) and passing in the same number of arguments
-   accepted by f. the return value of f is returned to the template."
-  ([^String name f]
-   (add-function! name nil f))
-  ([^String name aliases f]
-   (let [handler (make-function-handler f)]
-     (.add @functions handler name (make-aliased-array aliases))
-     (.retrieve @functions name))))
+(defn function-exists? [^String name]
+  (not (nil? (get-function name))))
 
 (defmacro deftwigfn
   "defines a new template function. templates can call it by by the name specified and passing in the
    same number of arguments as in args. the return value of the last form in body is returned to the
    template. functions defined this way have no aliases and can only be called by the name given."
   [fn-name args & body]
-  `(do
-     (add-function! ~fn-name (fn ~args ~@body))))
+  `(let [f# (fn ~args ~@body)]
+     (.store
+       @functions
+       (make-function-handler fn-name nil f#))))
 
 (defmacro defaliasedtwigfn
   "defines a new template function. templates can call it by by the name specified (or one of the
    aliases specified) and passing in the same number of arguments as in args. the return value of
    the last form in body is returned to the template."
   [fn-name args aliases & body]
-  `(do
-     (add-function! ~fn-name ~aliases (fn ~args ~@body))))
+  `(let [f# (fn ~args ~@body)]
+     (.store
+       @functions
+       (make-function-handler fn-name aliases f#))))
