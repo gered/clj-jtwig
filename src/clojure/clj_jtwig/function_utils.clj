@@ -1,4 +1,5 @@
 (ns clj-jtwig.function-utils
+  "utility macros for creating Jtwig function handlers. intended for internal clj-jtwig use only."
   (:import (com.lyncode.jtwig.functions.exceptions FunctionException)
            (com.lyncode.jtwig.functions.annotations JtwigFunction Parameter)
            (clj_jtwig TemplateFunction))

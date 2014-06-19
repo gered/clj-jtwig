@@ -1,5 +1,5 @@
 (ns clj-jtwig.standard-functions
-  "standard function definitions. these are functions that are not yet included in JTwig's standard function
+  "standard function definitions. these are functions that are not yet included in Jtwig's standard function
    library and are just here to fill in the gaps for now."
   (:import (org.apache.commons.lang3.text WordUtils)
            (org.apache.commons.lang3 StringUtils))

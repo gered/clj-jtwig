@@ -1,5 +1,5 @@
 (ns clj-jtwig.core
-  "wrapper functions for working with JTwig from clojure"
+  "wrapper functions for working with Jtwig from clojure"
   (:import (com.lyncode.jtwig JtwigTemplate JtwigContext JtwigModelMap)
            (com.lyncode.jtwig.content.api Renderable)
            (com.lyncode.jtwig.configuration JtwigConfiguration)

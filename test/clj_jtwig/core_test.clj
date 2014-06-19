@@ -4,10 +4,10 @@
             [clj-jtwig.core :refer :all]
             [clj-jtwig.functions :refer :all]))
 
-; The purpose of these tests is to establish that our wrapper around JTwig works. That is,
+; The purpose of these tests is to establish that our wrapper around Jtwig works. That is,
 ; we will be focusing on stuff like making sure that passing Clojure data structures
-; (e.g. maps, vectors, lists) over to JTwig works fine.
-; JTwig includes its own test suite which tests actual template parsing and evaluation
+; (e.g. maps, vectors, lists) over to Jtwig works fine.
+; Jtwig includes its own test suite which tests actual template parsing and evaluation
 ; functionality, so there's no point in duplicating that kind of testing here once we
 ; establish that the above mentioned stuff works fine.
 ;
@@ -48,7 +48,7 @@
       (set-options! :auto-convert-map-keywords true))))
 
 (deftest passing-model-map-data
-  (testing "Passing Clojure data structures to JTwigContext's"
+  (testing "Passing Clojure data structures to JtwigContext's"
     (is (= (render "float {{ x }}"
                    {:x 3.14})
            "float 3.14")

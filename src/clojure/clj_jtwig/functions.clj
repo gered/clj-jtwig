@@ -10,9 +10,10 @@
   (:use [clj-jtwig.standard-functions]
         [clj-jtwig.web.web-functions]))
 
-(def object-array-type (Class/forName "[Ljava.lang.Object;"))
-(def function-parameters (doto (GivenParameters.)
-                        (.add (to-array [object-array-type]))))
+(def ^:private object-array-type (Class/forName "[Ljava.lang.Object;"))
+
+(def ^:private function-parameters (doto (GivenParameters.)
+                                     (.add (to-array [object-array-type]))))
 
 (defn- add-function-library! [repository functions]
   (doseq [fn-obj functions]
@@ -33,11 +34,13 @@
   []
   (reset! functions (create-function-repository)))
 
+; intended for internal-use only. mainly exists for use in unit tests
 (defn get-function [^String name]
   (try
     (.get @functions name function-parameters)
     (catch FunctionNotFoundException ex)))
 
+; intended for internal-use only. mainly exists for use in unit tests
 (defn function-exists? [^String name]
   (not (nil? (get-function name))))
 
