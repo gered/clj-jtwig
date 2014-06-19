@@ -195,15 +195,15 @@
         (every? string? (keys x)))
 
       (set-options! :auto-convert-map-keywords true)
-      (is (= (render "{{keys_are_all_keywords(get_map_with_keywords(null))}}" {})
+      (is (= (render "{{keys_are_all_keywords(get_map_with_keywords(null))}}")
              "1"))
-      (is (= (render "{{keys_are_all_keywords(get_map_with_strings(null))}}" {})
+      (is (= (render "{{keys_are_all_keywords(get_map_with_strings(null))}}")
              "1"))
 
       (set-options! :auto-convert-map-keywords false)
-      (is (= (render "{{keys_are_all_keywords(get_map_with_keywords(null))}}" {})
+      (is (= (render "{{keys_are_all_keywords(get_map_with_keywords(null))}}")
              "1"))
-      (is (= (render "{{keys_are_all_strings(get_map_with_strings(null))}}" {})
+      (is (= (render "{{keys_are_all_strings(get_map_with_strings(null))}}")
              "1"))
 
       (set-options! :auto-convert-map-keywords true)
