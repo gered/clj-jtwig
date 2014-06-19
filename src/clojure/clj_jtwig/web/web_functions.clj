@@ -19,7 +19,6 @@
 
 (defn- get-resource-modification-timestamp [^String resource-url]
   (if (relative-url? resource-url)
-
     (->> (str (:web-resource-path-root @options) resource-url)
          (get-context-url)
          (get-resource-modification-date))))
