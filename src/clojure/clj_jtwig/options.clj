@@ -41,4 +41,7 @@
      ; the root path (relative to the classpath) where web resources such as js, css, images are
      ; located. typically in your project structure this path will be located under the
      ; "resources" directory.
-     :web-resource-path-root           "public"}))
+     :web-resource-path-root           "public"
+
+     ; when enabled, exceptions will be thrown when attempting to use variables that do not exist
+     :strict-mode                      false}))

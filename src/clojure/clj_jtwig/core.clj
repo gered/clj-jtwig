@@ -24,10 +24,15 @@
    see clj-jtwig.options for the option keys you can specify here."
   [& opts]
   (doseq [[k v] (apply hash-map opts)]
-    (if (= :cache-compiled-templates k)
+    (cond
+      (= k :cache-compiled-templates)
       ; always clear the cache when toggling. this will help ensure that any possiblity of weird behaviour from
       ; leftover stuff being stuck in the cache pre-toggle-on/off won't happen
-      (flush-template-cache!))
+      (flush-template-cache!)
+
+      (= k :strict-mode)
+      (-> configuration .parse (.strictMode v)))
+
     (swap! options assoc k v)))
 
 ; cache of compiled templates. key is the file path. value is a map with :last-modified which is the source file's
