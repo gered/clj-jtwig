@@ -67,12 +67,12 @@
   (library-function "normalize_space" [s]
     (StringUtils/normalizeSpace s))
 
-  (library-function "nth" [sequence index & optional-not-found]
+  (library-function "nth" [sequence index & [optional-not-found]]
     (let [values (if (map? sequence)    ; map instance check to match behaviour of jtwig's first/last implementation
                    (-> sequence vals)
                    sequence)]
       (if optional-not-found
-        (nth values index (first optional-not-found))
+        (nth values index optional-not-found)
         (nth values index))))
 
   (library-function "pad_left" [s size & [padding-string]]
