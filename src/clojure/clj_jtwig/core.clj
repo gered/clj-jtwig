@@ -31,7 +31,7 @@
       (flush-template-cache!)
 
       (= k :strict-mode)
-      (-> configuration .parse (.strictMode v)))
+      (-> configuration .render (.strictMode v)))
 
     (swap! options assoc k v)))
 
