@@ -36,4 +36,9 @@
      ; having to do any manual conversions yourself and to keep your Clojure code as idiomatic
      ; as possible. Jtwig model-maps at the very least do require all the keys to be strings
      ; (not keywords) to ensure that model-map value resolution works as expected.
-     :auto-convert-map-keywords        true}))
+     :auto-convert-map-keywords        true
+
+     ; the root path (relative to the classpath) where web resources such as js, css, images are
+     ; located. typically in your project structure this path will be located under the
+     ; "resources" directory.
+     :web-resource-path-root           "public"}))

@@ -9,10 +9,6 @@
         [clj-jtwig.utils]
         [clj-jtwig.options]))
 
-;; TODO: while 'public' is the default with Compojure, applications can override with something else ...
-;;       should make this customizable (some option added to clj-jtwig.options likely ...)
-(def root-resource-path "public")
-
 (defn- get-context-url [url]
   (str *servlet-context-path* url))
 
@@ -24,7 +20,7 @@
 (defn- get-resource-modification-timestamp [^String resource-url]
   (if (relative-url? resource-url)
 
-    (->> (str root-resource-path resource-url)
+    (->> (str (:web-resource-path-root @options) resource-url)
          (get-context-url)
          (get-resource-modification-date))))
 
@@ -52,7 +48,7 @@
           (minified-url? url))
     url
     (let [minified-url (make-minified-url url)]
-      (if (get-resource-path (str root-resource-path minified-url))
+      (if (get-resource-path (str (:web-resource-path-root @options) minified-url))
         minified-url
         url))))
 
