@@ -49,7 +49,7 @@
   `(let [f# (fn ~args ~@body)]
      (.store
        @functions
-       (make-function-handler fn-name nil f#))))
+       (make-function-handler ~fn-name [] f#))))
 
 (defmacro defaliasedtwigfn
   "defines a new template function. templates can call it by by the name specified (or one of the
@@ -59,4 +59,4 @@
   `(let [f# (fn ~args ~@body)]
      (.store
        @functions
-       (make-function-handler fn-name aliases f#))))
+       (make-function-handler ~fn-name ~aliases f#))))
