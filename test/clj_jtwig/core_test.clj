@@ -20,9 +20,8 @@
                    {:name "Bob"})
            "Hello Bob!")
         "passing a model-map")
-    (is (= (render "Hello {{ name }}!"
-                   nil)
-           "Hello null!")
+    (is (= (render "Hello {{ name }}!")
+           "Hello !")
         "not passing a model-map")
     (is (= (render "Hello {{ name }}!"
                    {"name" "Bob"})
@@ -60,7 +59,7 @@
         "passing an integer")
     (is (= (render "null {{ x }}"
                    {:x nil})
-           "null null")
+           "null ")
         "passing a nil value")
     (is (= (render "char {{ x }}"
                    {:x \a})
@@ -108,9 +107,8 @@
             (render-file invalid-filename
                          {:name "Bob"}))
           "trying to render a file that doesn't exist")
-      (is (= (render-file test-filename
-                          nil)
-             "Hello null from a file!")
+      (is (= (render-file test-filename)
+             "Hello  from a file!")
           "not passing a model-map")
       (is (= (render-file test-filename
                           {"name" "Bob"})

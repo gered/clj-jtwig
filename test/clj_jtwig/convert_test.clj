@@ -167,15 +167,15 @@
 
       (set-options! :auto-convert-map-keywords true)
       (is (= (render "{{keys_are_all_keywords(x)}}" {:x {:a "foo" :b "bar" :c "baz"}})
-             "true"))
+             "1"))
       (is (= (render "{{keys_are_all_keywords(x)}}" {:x {"a" "foo" "b" "bar" "c" "baz"}})
-             "true"))
+             "1"))
 
       (set-options! :auto-convert-map-keywords false)
       (is (= (render "{{keys_are_all_keywords(x)}}" {"x" {:a "foo" :b "bar" :c "baz"}})
-             "true"))
+             "1"))
       (is (= (render "{{keys_are_all_strings(x)}}" {"x" {"a" "foo" "b" "bar" "c" "baz"}})
-             "true"))
+             "1"))
 
       (set-options! :auto-convert-map-keywords true)
       (reset-functions!))))
@@ -196,15 +196,15 @@
 
       (set-options! :auto-convert-map-keywords true)
       (is (= (render "{{keys_are_all_keywords(get_map_with_keywords(null))}}" {})
-             "true"))
+             "1"))
       (is (= (render "{{keys_are_all_keywords(get_map_with_strings(null))}}" {})
-             "true"))
+             "1"))
 
       (set-options! :auto-convert-map-keywords false)
       (is (= (render "{{keys_are_all_keywords(get_map_with_keywords(null))}}" {})
-             "true"))
+             "1"))
       (is (= (render "{{keys_are_all_strings(get_map_with_strings(null))}}" {})
-             "true"))
+             "1"))
 
       (set-options! :auto-convert-map-keywords true)
       (reset-functions!))))
