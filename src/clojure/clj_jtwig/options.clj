@@ -28,7 +28,7 @@
      ; part of the filename, and if so use that file instead.
      ; note that enabling this option does obviously incur a slight file I/O performance penalty
      ; whenever these functions are used
-     :check-for-minified-web-resources true
+     :check-for-minified-web-resources false
 
      ; automatically convert keyword keys in maps to/from strings as necessary when being passed
      ; in model-maps, when passed to Jtwig functions and when returned as values from Jtwig
