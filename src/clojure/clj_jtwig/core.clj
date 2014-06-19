@@ -135,13 +135,13 @@
   "renders a template contained in the provided string, using the values in model-map
    as the model for the template. templates rendered using this function are always
    parsed, compiled and rendered. the compiled results are never cached."
-  [s model-map]
+  [^String s & [model-map]]
   (let [renderable (compile-template-string s)]
     (render-compiled-template renderable model-map)))
 
 (defn render-file
   "renders a template from a file, using the values in model-map as the model for the template"
-  [^String filename model-map]
+  [^String filename & [model-map]]
   (let [file       (new File filename)
         renderable (compile-template! file)]
     (render-compiled-template renderable model-map)))
@@ -149,7 +149,7 @@
 (defn render-resource
   "renders a template from a resource file, using the values in the model-map as the model for
    the template."
-  [^String filename model-map]
+  [^String filename & [model-map]]
   (if-let [resource-filename (get-resource-path filename)]
     (render-file (.getPath resource-filename) model-map)
     (throw (new FileNotFoundException (str "Template file \"" filename "\" not found.")))))
