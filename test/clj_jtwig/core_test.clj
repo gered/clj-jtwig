@@ -1,5 +1,6 @@
 (ns clj-jtwig.core-test
-  (:import (java.io FileNotFoundException))
+  (:import (java.io FileNotFoundException)
+           (com.lyncode.jtwig.exception CalculateException RenderException))
   (:require [clojure.test :refer :all]
             [clj-jtwig.core :refer :all]
             [clj-jtwig.functions :refer :all]))
@@ -133,3 +134,26 @@
             "passing a model-map where the keys are keywords and try skipping auto stringifying the keys")
 
         (set-options! :auto-convert-map-keywords true)))))
+
+(deftest options
+  (testing "clj-jtwig options specific tests"
+    (do
+      (set-options! :strict-mode true)
+
+      (is (thrown-with-msg?
+            RenderException
+            #"com.lyncode.jtwig.exception.CalculateException"
+            (render "{{ foo }}"))
+          "trying to output a non-existant variable under strict-mode")
+      (is (= (render "{{ foo }}" {:foo "bar"})
+             "bar")
+          "trying to output an existing variable under strict-mode")
+
+      (set-options! :strict-mode false)
+
+      (is (= (render "{{ foo }}")
+            "")
+          "trying to output a non-existant variable under non-strict-mode")
+      (is (= (render "{{ foo }}" {:foo "bar"})
+             "bar")
+          "trying to output an existing variable under non-strict-mode"))))
