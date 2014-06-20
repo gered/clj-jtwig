@@ -5,7 +5,7 @@
            (com.lyncode.jtwig.configuration JtwigConfiguration)
            (com.lyncode.jtwig.render RenderContext)
            (com.lyncode.jtwig.render.config RenderConfiguration)
-           (com.lyncode.jtwig.resource ClasspathJtwigResource)
+           (com.lyncode.jtwig.resource ClasspathJtwigResource StringJtwigResource FileJtwigResource)
            (java.io File FileNotFoundException ByteArrayOutputStream)
            (java.net URL))
   (:require [clojure.walk :refer [stringify-keys]])
@@ -41,20 +41,22 @@
 (defonce compiled-templates (atom {}))
 
 (defn- compile-template-string [^String contents]
-  (->> contents
-       (new JtwigTemplate)
-       (.compile)))
+  (-> contents
+      (StringJtwigResource.)
+      (JtwigTemplate. configuration)
+      (.compile)))
 
 (defn- compile-template-file [^File file]
   (if (inside-jar? file)
-    (->> (.getPath file)
-         (get-jar-resource-filename)
-         (new ClasspathJtwigResource)
-         (new JtwigTemplate)
-         (.compile))
-    (->> file
-         (new JtwigTemplate)
-         (.compile))))
+    (-> (.getPath file)
+        (get-jar-resource-filename)
+        (ClasspathJtwigResource.)
+        (JtwigTemplate. configuration)
+        (.compile))
+    (-> file
+        (FileJtwigResource.)
+        (JtwigTemplate. configuration)
+        (.compile))))
 
 (defn- newer? [^File file other-timestamp]
   (let [file-last-modified (get-file-last-modified file)]
