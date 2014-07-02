@@ -3,6 +3,7 @@
   (:import (com.lyncode.jtwig JtwigTemplate JtwigContext JtwigModelMap)
            (com.lyncode.jtwig.content.api Renderable)
            (com.lyncode.jtwig.configuration JtwigConfiguration)
+           (com.lyncode.jtwig.parser.config TagSymbols)
            (com.lyncode.jtwig.render RenderContext)
            (com.lyncode.jtwig.render.config RenderConfiguration)
            (com.lyncode.jtwig.resource ClasspathJtwigResource StringJtwigResource FileJtwigResource)
@@ -31,7 +32,14 @@
       (flush-template-cache!)
 
       (= k :strict-mode)
-      (-> configuration .render (.strictMode v)))
+      (-> configuration .render (.strictMode v))
+
+      (= k :tag-symbols)
+      (-> configuration
+          .parse
+          (.withSymbols (condp = v
+                          :default TagSymbols/DEFAULT
+                          :js      TagSymbols/JAVASCRIPT))))
 
     (swap! options assoc k v)))
 

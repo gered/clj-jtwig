@@ -156,4 +156,17 @@
           "trying to output a non-existant variable under non-strict-mode")
       (is (= (render "{{ foo }}" {:foo "bar"})
              "bar")
-          "trying to output an existing variable under non-strict-mode"))))
+          "trying to output an existing variable under non-strict-mode"))
+    (do
+      (set-options! :tag-symbols :js)
+      (is (= (render "@> 1 <@" {:foo "bar"})
+             "1")
+          "js-style output symbols")
+      (is (= (render "<# if (foo) #>bar<# endif #>" {:foo true})
+             "bar")
+          "js-style tag symbols")
+      (is (= (render "<$ this is a comment $>")
+             "")
+          "js-style comment symbols")
+
+      (set-options! :tag-symbols :default))))

@@ -44,4 +44,10 @@
      :web-resource-path-root           "public"
 
      ; when enabled, exceptions will be thrown when attempting to use variables that do not exist
-     :strict-mode                      false}))
+     :strict-mode                      false
+
+     ; allows for changing the tag symbols used from normal Twig-style to a style more friendly
+     ; with certain Javascript template engines (e.g. Angular).
+     ; :default => tag: {% %}, output: {{ }}, comment: {# #}
+     ; :js      => tag: <# #>, output: <@ @>, comment: <$ $>
+     :tag-symbols                      :default}))
